@@ -26,7 +26,8 @@ __Note:__ The sample application is a port of the Lazarus version https://github
 * [python4delphi](https://github.com/pyscripter/python4delphi) 
 * [TurboPack AsyncPro](https://github.com/TurboPack/AsyncPro)
 * [SynEdit](https://github.com/TurboPack/SynEdit)
-
+* [JCL](https://github.com/project-jedi/jcl)
+* [JVCL](https://github.com/project-jedi/jvcl)
 
 ## Installation
 * Select the Python version to be used in `python4delphi` by editing:  
