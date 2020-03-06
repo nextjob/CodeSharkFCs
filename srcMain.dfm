@@ -2,8 +2,8 @@ object FrmMain: TFrmMain
   Left = 0
   Top = 0
   Caption = 'CodeSharkFCs'
-  ClientHeight = 443
-  ClientWidth = 618
+  ClientHeight = 542
+  ClientWidth = 707
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
@@ -18,7 +18,7 @@ object FrmMain: TFrmMain
   object ActionMainMenuBar1: TActionMainMenuBar
     Left = 0
     Top = 0
-    Width = 618
+    Width = 707
     Height = 25
     UseSystemFont = False
     ActionManager = ActionManager1
@@ -34,11 +34,12 @@ object FrmMain: TFrmMain
     Font.Name = 'Segoe UI'
     Font.Style = []
     Spacing = 0
+    ExplicitWidth = 618
   end
   object ToolBarMain: TToolBar
     Left = 0
     Top = 25
-    Width = 618
+    Width = 707
     Height = 26
     AutoSize = True
     BorderWidth = 1
@@ -46,6 +47,7 @@ object FrmMain: TFrmMain
     Caption = 'Standard'
     Images = ImageListMain
     TabOrder = 1
+    ExplicitWidth = 618
     object ToolButtonSearch: TToolButton
       Left = 0
       Top = 0
@@ -102,20 +104,23 @@ object FrmMain: TFrmMain
   end
   object Statusbar: TStatusBar
     Left = 0
-    Top = 424
-    Width = 618
+    Top = 523
+    Width = 707
     Height = 19
     Panels = <
       item
         Width = 50
       end>
     SimplePanel = True
+    ExplicitTop = 428
+    ExplicitWidth = 618
   end
   object SynEdit: TSynEdit
-    Left = 2
-    Top = 57
-    Width = 608
-    Height = 373
+    Left = 0
+    Top = 51
+    Width = 707
+    Height = 472
+    Align = alClient
     Font.Charset = DEFAULT_CHARSET
     Font.Color = clWindowText
     Font.Height = -13
@@ -136,6 +141,10 @@ object FrmMain: TFrmMain
     Gutter.Font.Style = []
     SearchEngine = SynEditSearch
     FontSmoothing = fsmNone
+    ExplicitLeft = 2
+    ExplicitTop = 57
+    ExplicitWidth = 608
+    ExplicitHeight = 373
   end
   object ActionManager1: TActionManager
     ActionBars = <
@@ -300,8 +309,8 @@ object FrmMain: TFrmMain
           item
             Items = <
               item
-                Action = Action2
-                Caption = '&Action2'
+                Action = About
+                Caption = '&About'
               end>
             Caption = '&Help'
           end>
@@ -439,9 +448,10 @@ object FrmMain: TFrmMain
       Caption = 'Configure Port'
       OnExecute = ConfigurePortExecute
     end
-    object Action2: TAction
+    object About: TAction
       Category = 'Help'
-      Caption = 'Action2'
+      Caption = 'About'
+      OnExecute = AboutExecute
     end
     object ProtocolOpts: TAction
       Category = 'CNC'

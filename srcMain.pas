@@ -123,7 +123,7 @@ type
     OpenSendDialog: TOpenDialog;
     OpenRecvDialog: TOpenDialog;
     ConfigurePort: TAction;
-    Action2: TAction;
+    About: TAction;
     ProtocolOpts: TAction;
     SendFromFile: TAction;
     Action1: TAction;
@@ -183,6 +183,7 @@ type
     procedure NewExecute(Sender: TObject);
     procedure SaveExistingEditSession;
     procedure PortCloseTimerTimer(Sender: TObject);
+    procedure AboutExecute(Sender: TObject);
 
   private
     { Private declarations }
@@ -936,7 +937,12 @@ Begin
 End;
 
 
-procedure TFrmMain.ActionSearchExecute(Sender: TObject);
+Procedure TFrmMain.AboutExecute(Sender: TObject);
+begin
+  AboutBox.ShowModal;
+end;
+
+Procedure TFrmMain.ActionSearchExecute(Sender: TObject);
 begin
   FindDialog1.Execute;
   ActionSearchNext.Enabled := True;

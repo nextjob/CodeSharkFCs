@@ -165,13 +165,13 @@ object FreeCadFrm: TFreeCadFrm
     TabOrder = 3
   end
   object PythonEngine1: TPythonEngine
-    DllName = 'python36.dll'
+    AutoLoad = False
+    DllName = 'python32.dll'
     APIVersion = 1013
-    RegVersion = '3.6'
+    RegVersion = '3.2'
     FatalAbort = False
     FatalMsgDlg = False
     UseLastKnownVersion = False
-    OnBeforeLoad = PythonEngine1BeforeLoad
     AutoFinalize = False
     IO = PythonGUIInputOutput1
     PyFlags = [pfIgnoreEnvironmentFlag]

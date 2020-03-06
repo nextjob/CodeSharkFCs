@@ -12,12 +12,13 @@ object SetFCparmsFrm: TSetFCparmsFrm
   Font.Style = []
   OldCreateOrder = False
   OnClose = FormClose
+  OnCreate = FormCreate
   OnShow = FormShow
   PixelsPerInch = 96
   TextHeight = 13
   object Label1: TLabel
     Left = 16
-    Top = 198
+    Top = 256
     Width = 217
     Height = 13
     Caption = '*Overwrites Script with Last Executed Copy*'
@@ -35,7 +36,7 @@ object SetFCparmsFrm: TSetFCparmsFrm
   end
   object FreeCadMod: TLabeledEdit
     Left = 8
-    Top = 59
+    Top = 66
     Width = 225
     Height = 21
     EditLabel.Width = 89
@@ -46,7 +47,7 @@ object SetFCparmsFrm: TSetFCparmsFrm
   end
   object cbCustStart: TCheckBox
     Left = 8
-    Top = 86
+    Top = 141
     Width = 129
     Height = 17
     Caption = 'Custom Start Script'
@@ -54,7 +55,7 @@ object SetFCparmsFrm: TSetFCparmsFrm
   end
   object cbCustPanel: TCheckBox
     Left = 8
-    Top = 109
+    Top = 164
     Width = 153
     Height = 17
     Caption = 'Custom View Panel Script'
@@ -62,7 +63,7 @@ object SetFCparmsFrm: TSetFCparmsFrm
   end
   object cbCustSelectObs: TCheckBox
     Left = 8
-    Top = 132
+    Top = 187
     Width = 185
     Height = 17
     Caption = 'Custom Selection Observer Script'
@@ -70,7 +71,7 @@ object SetFCparmsFrm: TSetFCparmsFrm
   end
   object cbCustShutdown: TCheckBox
     Left = 8
-    Top = 155
+    Top = 210
     Width = 185
     Height = 17
     Caption = 'Custom Shutdown Script'
@@ -78,7 +79,7 @@ object SetFCparmsFrm: TSetFCparmsFrm
   end
   object cbOverWriteScript: TCheckBox
     Left = 8
-    Top = 178
+    Top = 233
     Width = 169
     Height = 17
     Caption = 'Overwrite Scripts *Caution*'
@@ -86,10 +87,29 @@ object SetFCparmsFrm: TSetFCparmsFrm
   end
   object cbFreeCADWarnDisable: TCheckBox
     Left = 8
-    Top = 217
+    Top = 275
     Width = 185
     Height = 17
     Caption = 'Disable FreeCAD Window Warning'
     TabOrder = 7
+  end
+  object PyDllName: TLabeledEdit
+    Left = 8
+    Top = 109
+    Width = 121
+    Height = 21
+    EditLabel.Width = 40
+    EditLabel.Height = 13
+    EditLabel.Caption = 'dll Name'
+    TabOrder = 8
+  end
+  object cbPyVersions: TComboBox
+    Left = 135
+    Top = 109
+    Width = 98
+    Height = 21
+    Style = csDropDownList
+    TabOrder = 9
+    OnSelect = cbPyVersionsSelect
   end
 end

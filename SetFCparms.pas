@@ -23,7 +23,7 @@ interface
 uses
   Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants,
   System.Classes, System.IOUtils, System.IniFiles, Vcl.Graphics,
-  Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.StdCtrls, Vcl.ExtCtrls, FileCtrl,
+  Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.StdCtrls, Vcl.ExtCtrls, FileCtrl,PythonEngine,
   Vcl.ComCtrls;
 
 type
@@ -37,10 +37,14 @@ type
     cbOverWriteScript: TCheckBox;
     cbFreeCADWarnDisable: TCheckBox;
     Label1: TLabel;
+    PyDllName: TLabeledEdit;
+    cbPyVersions: TComboBox;
     procedure FormShow(Sender: TObject);
     procedure PythonHomeClick(Sender: TObject);
     procedure FreeCadModClick(Sender: TObject);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
+    procedure FormCreate(Sender: TObject);
+    procedure cbPyVersionsSelect(Sender: TObject);
 
   private
     { Private declarations }
@@ -51,6 +55,7 @@ type
 
 var
   SetFCparmsFrm: TSetFCparmsFrm;
+  PyRegVersion : string;
 
 implementation
 
@@ -62,11 +67,29 @@ Const
   // ini file section names
   PathSection = 'Paths';
   ScriptsSection = 'Scripts';
-  WarningsSection = 'Warnings'; 
+  WarningsSection = 'Warnings';
+
+
+procedure TSetFCparmsFrm.cbPyVersionsSelect(Sender: TObject);
+begin
+// cbPyVersions.ItemIndex index to selected python verstion
+  PyDllName.Text := PYTHON_KNOWN_VERSIONS[cbPyVersions.ItemIndex+1].DllName;
+  PyRegVersion := PYTHON_KNOWN_VERSIONS[cbPyVersions.ItemIndex+1].RegVersion;
+end;
 
 procedure TSetFCparmsFrm.FormClose(Sender: TObject; var Action: TCloseAction);
 Begin
   SaveIni;
+end;
+
+procedure TSetFCparmsFrm.FormCreate(Sender: TObject);
+var
+  PyEngineVersion : TPythonVersionProp;
+// create a dropdown list of python versions currently defined in Pythom4delphi engine
+
+begin
+   for PyEngineVersion in PYTHON_KNOWN_VERSIONS do
+    cbPyVersions.Items.Add(PyEngineVersion.DllName);
 end;
 
 procedure TSetFCparmsFrm.FormShow(Sender: TObject);
@@ -87,8 +110,8 @@ begin
     Inif := TMemIniFile.Create(FrmMain.AppDataPath + '\' + MyAppName + '.ini');
     PythonHome.Text := Inif.ReadString(PathSection, 'PythonHome', '');
     // PyDllPath.Text := Inif.ReadString(PathSection, 'PythonDllPath', '');
-    // PyDllName.Text := Inif.ReadString(PathSection, 'PythonDllName', '');
-    // RegVersion.Text := Inif.ReadString(PathSection, 'RegVersion', '');
+    PyDllName.Text := Inif.ReadString(PathSection, 'PythonDllName', '');
+    PyRegVersion := Inif.ReadString(PathSection, 'RegVersion', '');
     //
     // FreeCadBin.Text := Inif.ReadString(PathSection, 'FreeCadBin', '');
     FreeCadMod.Text := Inif.ReadString(PathSection, 'FreeCadMod', '');
@@ -129,19 +152,19 @@ begin
       Inif.WriteString(PathSection, 'PythonDllPath', PyDllPath.Text)
       else
       showMessage('Python Dll Path not set, ' + PyDllPath.Text + ' not found');
-
-      if (Length(PyDllName.Text) > 0) and
-      (FileExists(PyDllPath.Text + '\' + PyDllName.Text)) then
+     }
+    if (Length(PyDllName.Text) > 0) and
+      (FileExists(PythonHome.Text + '\' + PyDllName.Text)) then
       Inif.WriteString(PathSection, 'PythonDllName', PyDllName.Text)
-      else
-      showMessage('Python Dll Name not set, ' + PyDllPath.Text + '\' +
+    else
+      showMessage('Python Dll Name not set, ' + PythonHome.Text + '\' +
       PyDllName.Text + ' not found');
 
-      if (Length(RegVersion.Text) > 0) then
-      Inif.WriteString(PathSection, 'RegVersion', RegVersion.Text)
-      else
+    if (Length(PyRegVersion) > 0) then
+      Inif.WriteString(PathSection, 'RegVersion', PyRegVersion)
+    else
       showMessage('Python Registered Version not set');
-
+    {
       if (Length(FreeCadBin.Text) > 0) and (TDirectory.Exists(FreeCadBin.Text))
       then
       Inif.WriteString(PathSection, 'FreeCadBin', FreeCadBin.Text)
@@ -207,20 +230,6 @@ begin
     FreeCadMod.Text := ADir[0];
 end;
 
-{ procedure TSetFCparmsFrm.PyDllNameClick(Sender: TObject);
-  var
-  RDir, Fn: string;
-  begin
-  if Length(PyDllName.Text) <> 0 then
-  RDir := ExtractFilePath(PyDllName.Text)
-  else
-  RDir := 'C:\';
-
-  if PromptForFileName(Fn, 'Dll files (*.dll)|*.dll|All files (*.*)', '',
-  'Select Python Dll (typically: ..\FreeCad\bin\pythonxx.dll)', RDir, False) then
-  PyDllName.Text := ExtractFileName(Fn);
-  end; }
-
 { procedure TSetFCparmsFrm.PyDllPathClick(Sender: TObject);
   var
   RDir: string;
@@ -235,6 +244,7 @@ end;
   'Select Python Dll Path ', 'Python Dll Path (typically: ..\FreeCad\bin)') then
   PyDllPath.Text := ADir[0];
   end; }
+
 
 procedure TSetFCparmsFrm.PythonHomeClick(Sender: TObject);
 var

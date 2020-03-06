@@ -144,8 +144,6 @@ type
   { TFreeCadFrm }
 
   TFreeCadFrm = class(TForm)
-    Label5: TLabel;
-    Label6: TLabel;
     PythonEngine1: TPythonEngine;
     ExeMemo: TMemo;
     PyOutMemo: TMemo;
@@ -158,7 +156,6 @@ type
     cbIncludeZ: TCheckBox;
     Label3: TLabel;
     PythonGUIInputOutput1: TPythonGUIInputOutput;
-    PythonInputOutput1: TPythonInputOutput;
     PythonModule1: TPythonModule;
     UpDown1: TUpDown;
     EdtUpDown: TEdit;
@@ -171,9 +168,7 @@ type
     PythonDelphiVar1: TPythonDelphiVar;
 
     procedure btnExeFCClick(Sender: TObject);
-    procedure cbBypassSelChange(Sender: TObject);
     procedure PythonModule1Initialization(Sender: TObject);
-    procedure PythonEngine1BeforeLoad(Sender: TObject);
     procedure LoadStartupScript;
     procedure LoadPanelViewScript;
     procedure LoadObserverScript;
@@ -782,6 +777,8 @@ begin
 end;
 
 procedure TFreeCadFrm.FormCreate(Sender: TObject);
+Var
+  MyPyDllPath: String;
 begin
   ScriptLns := TStringList.Create;
   StarupLoaded := False;
@@ -790,6 +787,32 @@ begin
   LastX := '';
   LastY := '';
   LastZ := ''; // init last point position
+
+  ObserverLoaded := False; // observer not loaded at this point
+
+  //
+  // Set up PythonEngine to use python user selected (hopefully the FreeCAD Python Interperter
+
+  PythonEngine1.DllPath := Trim(SetFCparmsFrm.PythonHome.Text);
+  PythonEngine1.DllName := Trim(SetFCparmsFrm.PyDllName.Text);
+  PythonEngine1.RegVersion := SetFCparms.PyRegVersion;
+  // need to set PYTHONHOME before startup or we will fail
+  // Note setting  env PYTHONHOME does not seem to work, use dll call
+  PythonEngine1.SetPythonHome(SetFCparmsFrm.PythonHome.Text);
+
+  MyPyDllPath := IncludeTrailingPathDelimiter(PythonEngine1.DllPath) +
+    PythonEngine1.DllName;
+
+  if not(FileExists(MyPyDllPath)) then
+    Begin
+      ShowMessage('Cannot Find Python dll: ' + MyPyDllPath + ' Python dll path and or name not set, or set incorrectly');
+      ShowMessage('Cannot Start FreeCAD without Python!');
+    End
+  else
+    Begin
+      PythonEngine1.LoadDll;
+      MaskFPUExceptions(True);
+    End;
 end;
 
 procedure TFreeCadFrm.LoadStartupScript;
@@ -1172,8 +1195,9 @@ begin
   //
   // Note (or warn) for QT bug, "/platforms" directory must be local to codeshark exe, look for it
   //  01/22/2020 this looks like it has been fixed, do not warn
-  //if not DirectoryExists(ExtractFilePath(ParamStr(0)) + '\platforms') then
-  //  ShowMessage ('Warning ... Due to QT5 issue, "platforms" directory must be copied from FreeCad ../bin/platforms to directory containing CodeSharkFC exe file, it was not found.');
+  //  02/18/2020 when using  FreeCAD_0.19.19635_x64_Conda_Py3QT5-WinVS2015   it is back again!
+  if not DirectoryExists(ExtractFilePath(ParamStr(0)) + '\platforms') then
+    ShowMessage ('Warning ... Due to QT5 issue, "platforms" directory must be copied from FreeCad ../bin/platforms to directory containing CodeSharkFC exe file, it was not found.');
   //
   FrmMain.Cursor := crHourGlass;
   FrmMain.StatusBar.Panels[0].Text := 'Script Statup';
@@ -1195,40 +1219,6 @@ begin
 
 end;
 
-procedure TFreeCadFrm.cbBypassSelChange(Sender: TObject);
-begin
-
-end;
-
-procedure TFreeCadFrm.PythonEngine1BeforeLoad(Sender: TObject);
-//
-// Get startup info (file locations, ext) from our calling program
-//
-Var
-  MyPyDllPath: String;
-
-begin
-  ObserverLoaded := False; // observer not loaded at this point
-  // need to set PYTHONHOME before startup or we will fail
-  // Note setting  env PYTHONHOME does not seem to work, use dll call
-  PythonEngine1.SetPythonHome(SetFCparmsFrm.PythonHome.Text);
-  //
-  // Big Note Here!
-  // Rem:
-  // P4D uses a define (DEFINE PYTHONxx) to build for a specific python version
-  // Even though we specify a DllName in PythonEngine
-  //
-
-  PythonEngine1.DllPath := Trim(SetFCparmsFrm.PythonHome.Text);
-  MyPyDllPath := IncludeTrailingPathDelimiter(PythonEngine1.DllPath) +
-    PythonEngine1.DllName;
-  // showmessage('PyDll is: ' +  MyPyDllPath);
-  if not(FileExists(MyPyDllPath)) then
-    ShowMessage('Cannot Find: ' + MyPyDllPath);
-  // else
-  // showmessage('PyDll is: ' +  MyPyDllPath);
-  MaskFPUExceptions(True);
-end;
 
 end.
 
