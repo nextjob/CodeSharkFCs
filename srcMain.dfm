@@ -13,6 +13,7 @@ object FrmMain: TFrmMain
   OldCreateOrder = False
   OnClose = FormClose
   OnCreate = FormCreate
+  OnShow = FormShow
   PixelsPerInch = 96
   TextHeight = 13
   object ActionMainMenuBar1: TActionMainMenuBar
@@ -34,7 +35,6 @@ object FrmMain: TFrmMain
     Font.Name = 'Segoe UI'
     Font.Style = []
     Spacing = 0
-    ExplicitWidth = 618
   end
   object ToolBarMain: TToolBar
     Left = 0
@@ -47,14 +47,19 @@ object FrmMain: TFrmMain
     Caption = 'Standard'
     Images = ImageListMain
     TabOrder = 1
-    ExplicitWidth = 618
-    object ToolButtonSearch: TToolButton
+    object ToolButtonFileOpen: TToolButton
       Left = 0
+      Top = 0
+      Action = FileOpen1
+      ImageIndex = 0
+    end
+    object ToolButtonSearch: TToolButton
+      Left = 40
       Top = 0
       Action = ActionSearch
     end
     object ToolButtonSep1: TToolButton
-      Left = 40
+      Left = 80
       Top = 0
       Width = 8
       Caption = 'ToolButtonSep1'
@@ -62,12 +67,12 @@ object FrmMain: TFrmMain
       Style = tbsSeparator
     end
     object ToolButtonSearchNext: TToolButton
-      Left = 48
+      Left = 88
       Top = 0
       Action = ActionSearchNext
     end
     object ToolButtonSep2: TToolButton
-      Left = 88
+      Left = 128
       Top = 0
       Width = 8
       Caption = 'ToolButtonSep2'
@@ -75,12 +80,12 @@ object FrmMain: TFrmMain
       Style = tbsSeparator
     end
     object ToolButtonSearchPrev: TToolButton
-      Left = 96
+      Left = 136
       Top = 0
       Action = ActionSearchPrev
     end
     object ToolButtonSeparator2: TToolButton
-      Left = 136
+      Left = 176
       Top = 0
       Width = 8
       Caption = 'ToolButtonSeparator2'
@@ -89,12 +94,13 @@ object FrmMain: TFrmMain
       Style = tbsSeparator
     end
     object ToolButtonSearchReplace: TToolButton
-      Left = 144
+      Left = 184
       Top = 0
       Action = ActionSearchReplace
+      Enabled = False
     end
     object ToolButtonSep4: TToolButton
-      Left = 184
+      Left = 224
       Top = 0
       Width = 8
       Caption = 'ToolButtonSep4'
@@ -112,8 +118,6 @@ object FrmMain: TFrmMain
         Width = 50
       end>
     SimplePanel = True
-    ExplicitTop = 428
-    ExplicitWidth = 618
   end
   object SynEdit: TSynEdit
     Left = 0
@@ -126,13 +130,16 @@ object FrmMain: TFrmMain
     Font.Height = -13
     Font.Name = 'Courier New'
     Font.Style = []
+    Font.Quality = fqClearTypeNatural
     PopupMenu = PopupActionBar1
     TabOrder = 3
+    CodeFolding.GutterShapeSize = 11
     CodeFolding.CollapsedLineColor = clGrayText
     CodeFolding.FolderBarLinesColor = clGrayText
-    CodeFolding.ShowCollapsedLine = False
     CodeFolding.IndentGuidesColor = clGray
     CodeFolding.IndentGuides = True
+    CodeFolding.ShowCollapsedLine = False
+    CodeFolding.ShowHintMark = True
     UseCodeFolding = False
     Gutter.Font.Charset = DEFAULT_CHARSET
     Gutter.Font.Color = clWindowText
@@ -140,11 +147,7 @@ object FrmMain: TFrmMain
     Gutter.Font.Name = 'Courier New'
     Gutter.Font.Style = []
     SearchEngine = SynEditSearch
-    FontSmoothing = fsmNone
-    ExplicitLeft = 2
     ExplicitTop = 57
-    ExplicitWidth = 608
-    ExplicitHeight = 373
   end
   object ActionManager1: TActionManager
     ActionBars = <
@@ -233,10 +236,10 @@ object FrmMain: TFrmMain
                 Action = DialogFontEdit1
               end
               item
-                Action = actGutterLines
-                Caption = '&Gutter Lines'
+                Action = ProgramSettings
+                Caption = '&ProgramSettings'
               end>
-            Caption = 'Editor &Settings'
+            Caption = '&Settings'
           end
           item
             Items = <
@@ -274,37 +277,9 @@ object FrmMain: TFrmMain
               end
               item
                 Action = OpenOnReceive
-                Caption = '&OpenOnReceive'
+                Caption = '&Open On Receive'
               end>
             Caption = 'C&NC'
-          end
-          item
-            Items = <
-              item
-                Action = FilterOnOpen
-                Caption = '&Filter On Open'
-              end
-              item
-                Action = FilterOnSend
-                Caption = 'F&ilter On Send'
-              end
-              item
-                Action = FilterOnReceive
-                Caption = 'Fi&lter On Receive'
-              end
-              item
-                Action = Clear1stBlock
-                Caption = '&Clear to 1st Block'
-              end
-              item
-                Action = AddPercent
-                Caption = '&Add %'
-              end
-              item
-                Action = RemoveSpaces
-                Caption = '&Remove Extra Spaces'
-              end>
-            Caption = 'F&ilter Options'
           end
           item
             Items = <
@@ -415,7 +390,7 @@ object FrmMain: TFrmMain
       ShortCut = 46
     end
     object DialogFontEdit1: TFontEdit
-      Category = 'View'
+      Category = 'Settings'
       Caption = 'Select &Font...'
       Dialog.Font.Charset = DEFAULT_CHARSET
       Dialog.Font.Color = clWindowText
@@ -426,12 +401,6 @@ object FrmMain: TFrmMain
       Dialog.OnApply = DialogFontEdit1FontDialogApply
       Hint = 'Font Select'
       BeforeExecute = DialogFontEdit1BeforeExecute
-    end
-    object actGutterLines: TAction
-      Category = 'View'
-      AutoCheck = True
-      Caption = 'Gutter Lines'
-      OnExecute = actGutterLinesExecute
     end
     object FreeCADSettings: TAction
       Category = 'FreeCAD'
@@ -467,36 +436,6 @@ object FrmMain: TFrmMain
       Category = 'Edit'
       Caption = 'Action1'
     end
-    object FilterOnOpen: TAction
-      Category = 'Filter Options'
-      Caption = 'Filter On Open'
-      OnExecute = FilterOnOpenExecute
-    end
-    object FilterOnSend: TAction
-      Category = 'Filter Options'
-      Caption = 'Filter On Send'
-      OnExecute = FilterOnSendExecute
-    end
-    object FilterOnReceive: TAction
-      Category = 'Filter Options'
-      Caption = 'Filter On Receive'
-      OnExecute = FilterOnReceiveExecute
-    end
-    object Clear1stBlock: TAction
-      Category = 'Filter Options'
-      Caption = 'Clear to 1st Block'
-      OnExecute = Clear1stBlockExecute
-    end
-    object AddPercent: TAction
-      Category = 'Filter Options'
-      Caption = 'Add %'
-      OnExecute = AddPercentExecute
-    end
-    object RemoveSpaces: TAction
-      Category = 'Filter Options'
-      Caption = 'Remove Extra Spaces'
-      OnExecute = RemoveSpacesExecute
-    end
     object SendFromEditor: TAction
       Category = 'CNC'
       Caption = 'Send From Editor'
@@ -509,12 +448,18 @@ object FrmMain: TFrmMain
     end
     object OpenOnReceive: TAction
       Category = 'CNC'
-      Caption = 'OpenOnReceive'
+      Caption = 'Open On Receive'
+      OnExecute = OpenOnReceiveExecute
     end
     object New: TAction
       Category = 'File'
       Caption = 'New'
       OnExecute = NewExecute
+    end
+    object ProgramSettings: TAction
+      Category = 'Settings'
+      Caption = 'ProgramSettings'
+      OnExecute = ProgramSettingsExecute
     end
   end
   object PopupActionBar1: TPopupActionBar
@@ -864,6 +809,7 @@ object FrmMain: TFrmMain
       ImageIndex = 2
       ShortCut = 114
       OnExecute = ActionSearchNextExecute
+      OnUpdate = actSearchUpdate
     end
     object ActionSearchPrev: TAction
       Caption = 'Find &previous'
@@ -871,27 +817,18 @@ object FrmMain: TFrmMain
       ImageIndex = 3
       ShortCut = 8306
       OnExecute = ActionSearchPrevExecute
+      OnUpdate = actSearchUpdate
     end
     object ActionSearchReplace: TAction
       Caption = '&Replace...'
       ImageIndex = 4
       ShortCut = 16456
       OnExecute = ActionSearchReplaceExecute
+      OnUpdate = ActionSearchReplaceUpdate
     end
   end
   object SynEditSearch: TSynEditSearch
     Left = 292
-    Top = 160
-  end
-  object FindDialog1: TFindDialog
-    OnFind = DoFindText
-    Left = 384
-    Top = 160
-  end
-  object ReplaceDialog1: TReplaceDialog
-    OnFind = DoFindText
-    OnReplace = DoReplaceText
-    Left = 456
     Top = 160
   end
   object ApdComPort1: TApdComPort
@@ -903,6 +840,7 @@ object FrmMain: TFrmMain
     BufferFull = 3072
     BufferResume = 1024
     TraceName = 'APRO.TRC'
+    LogSize = 64000
     LogName = 'APRO.LOG'
     Left = 176
     Top = 288
@@ -943,7 +881,6 @@ object FrmMain: TFrmMain
   end
   object PortCloseTimer: TTimer
     Enabled = False
-    Interval = 5000
     OnTimer = PortCloseTimerTimer
     Left = 518
     Top = 288
@@ -966,5 +903,9 @@ object FrmMain: TFrmMain
     Title = 'Select a G-code file to Save on Receive'
     Left = 272
     Top = 224
+  end
+  object SynEditRegexSearch: TSynEditRegexSearch
+    Left = 380
+    Top = 160
   end
 end

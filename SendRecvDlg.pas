@@ -1,7 +1,5 @@
 { This file is part of CodeSharkFCs
 
-  Copyright (C) 2020 Nextjob Solutions, LLC.
-
   This source is free software; you can redistribute it and/or modify it under
   the terms of the GNU General Public License as published by the Free
   Software Foundation; either version 2 of the License, or (at your option)
@@ -15,7 +13,7 @@
   A copy of the GNU General Public License is available on the World Wide Web
   at <http://www.gnu.org/copyleft/gpl.html>. You can also obtain it by writing
   to the Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor,Boston, MA 02110 USA
-  
+
 }
 unit SendRecvDlg;
 
@@ -74,27 +72,30 @@ type
 
 var
   FrmSendRecvDlg: TFrmSendRecvDlg;
-  parity, Translate : string;
+  parity, Translate: string;
+
 implementation
 
 uses
-    srcMain, cmset, ptops ;
+  srcMain, cmset, ptops;
 
 {$R *.dfm}
+
 procedure TFrmSendRecvDlg.BtnChangePortClick(Sender: TObject);
 begin
   If (FrmMain.ApdComPort1 = NIL) Then
-     ShowMessage('Unable to Assign Com Port Options, ApdComport1 Nil??!')
+    ShowMessage('Unable to Assign Com Port Options, ApdComport1 Nil??!')
   else
   Begin
-     if ComPortOptions.showmodal = mrOk then
+    if ComPortOptions.showmodal = mrOk then
       PopPortState();
   end;
 End;
+
 procedure TFrmSendRecvDlg.btnChangeProtoClick(Sender: TObject);
 begin
- ProtocolOptions.execute;
- PopProtState();
+  ProtocolOptions.execute;
+  PopProtState();
 end;
 
 procedure TFrmSendRecvDlg.btnProtocolHelpClick(Sender: TObject);
@@ -102,78 +103,94 @@ begin
   If FileExists(Application.HelpFile) = TRUE Then
     Application.HelpContext(830)
   Else
-   ShowMessage(Application.HelpFile + ' Not Available');
+    ShowMessage(Application.HelpFile + ' Not Available');
 end;
 
 procedure TFrmSendRecvDlg.btnSendRecvClick(Sender: TObject);
 var
-   MBPrmpt: PCHAR;
+  MBPrmpt: PCHAR;
 begin
-   if IsPortAvailable(FrmMain.ApdComPort1.ComNumber) then
-      ModalResult := mrOK
-   else
-   Begin
-     MBPrmpt :=  PCHAR('Com Port Number: ' + intToStr(FrmMain.ApdComPort1.ComNumber) + ' Unavailable!'+chr(13)+'Please select a valid com port');
-     Application.MessageBox(MBPrmpt, 'CodeShark', MB_OK + MB_ICONWARNING +
-          MB_TASKMODAL);
-   end;
+  if IsPortAvailable(FrmMain.ApdComPort1.ComNumber) then
+    ModalResult := mrOk
+  else
+  Begin
+    MBPrmpt := PCHAR('Com Port Number: ' +
+      intToStr(FrmMain.ApdComPort1.ComNumber) + ' Unavailable!' + chr(13) +
+      'Please select a valid com port');
+    Application.MessageBox(MBPrmpt, 'CodeShark', MB_OK + MB_ICONWARNING +
+      MB_TASKMODAL);
+  end;
 end;
 
-
 procedure TFrmSendRecvDlg.FromShow(Sender: TObject);
- begin
-     PopPortState();
-     PopProtState();
- end;
+begin
+  PopPortState();
+  PopProtState();
+end;
 
 procedure TFrmSendRecvDlg.PopPortState;
- begin
- lblPortVal.Caption := intTostr(FrmMain.ApdComPort1.ComNumber);
- lblBaudVal.Caption := intTostr(FrmMain.ApdComPort1.Baud);
- lblStopVal.Caption := intTostr(FrmMain.ApdComPort1.StopBits);
-// {Parity type}
-//  TParity = (pNone, pOdd, pEven, pMark, pSpace);
+begin
+  lblPortVal.Caption := intToStr(FrmMain.ApdComPort1.ComNumber);
+  lblBaudVal.Caption := intToStr(FrmMain.ApdComPort1.Baud);
+  lblStopVal.Caption := intToStr(FrmMain.ApdComPort1.StopBits);
+  // {Parity type}
+  // TParity = (pNone, pOdd, pEven, pMark, pSpace);
 
- case ord(FrmMain.ApdComPort1.Parity) of
-   0 : parity := 'None';
-   1 : parity := 'Odd' ;
-   2 : parity := 'Even' ;
-   3 : parity := 'Mark' ;
-   4 : parity := 'Space' ;
- end;
- lblParityVal.Caption :=  parity;
- lblDataVal.Caption := intTostr(FrmMain.ApdComPort1.DataBits);
- if FrmMain.ApdComPort1.Open then
-    lblStateVal.Caption :=  'Open'
- else
-    lblStateVal.Caption :=  'Close';
- end;
+  case ord(FrmMain.ApdComPort1.parity) of
+    0:
+      parity := 'None';
+    1:
+      parity := 'Odd';
+    2:
+      parity := 'Even';
+    3:
+      parity := 'Mark';
+    4:
+      parity := 'Space';
+  end;
+  lblParityVal.Caption := parity;
+  lblDataVal.Caption := intToStr(FrmMain.ApdComPort1.DataBits);
+  if FrmMain.ApdComPort1.Open then
+    lblStateVal.Caption := 'Open'
+  else
+    lblStateVal.Caption := 'Close';
+end;
 
- procedure TFrmSendRecvDlg.PopProtState;
- begin
+procedure TFrmSendRecvDlg.PopProtState;
+begin
   // do not delete this!
-  lblCharVal.Caption := IntToStr(Ticks2Secs(FrmMain.ApdProtocol1.AsciiCharDelay));
-  lblLnVal.Caption := IntToStr(Ticks2Secs(FrmMain.ApdProtocol1.AsciiLineDelay));
+  lblCharVal.Caption :=
+    intToStr(Ticks2Secs(FrmMain.ApdProtocol1.AsciiCharDelay));
+  lblLnVal.Caption := intToStr(Ticks2Secs(FrmMain.ApdProtocol1.AsciiLineDelay));
 
-  case Ord(FrmMain.ApdProtocol1.AsciiCRTranslation) of
-   0 : Translate := 'none';
-   1 : Translate := 'strip' ;
-   2 : Translate := 'add CR' ;
-   3 : Translate := 'add LF' ;
+  case ord(FrmMain.ApdProtocol1.AsciiCRTranslation) of
+    0:
+      Translate := 'none';
+    1:
+      Translate := 'strip';
+    2:
+      Translate := 'add CR';
+    3:
+      Translate := 'add LF';
   end;
-  lblCrTranVal.Caption :=  Translate;
+  lblCrTranVal.Caption := Translate;
 
-  case Ord(FrmMain.ApdProtocol1.AsciiLFTranslation) of
-   0 : Translate := 'none';
-   1 : Translate := 'strip' ;
-   2 : Translate := 'add CR' ;
-   3 : Translate := 'add LF' ;
+  case ord(FrmMain.ApdProtocol1.AsciiLFTranslation) of
+    0:
+      Translate := 'none';
+    1:
+      Translate := 'strip';
+    2:
+      Translate := 'add CR';
+    3:
+      Translate := 'add LF';
   end;
-  lblLnTranVal.Caption :=  Translate;
+  lblLnTranVal.Caption := Translate;
 
-  lblEOFVal.Caption :=IntToStr(Ticks2Secs(FrmMain.ApdProtocol1.AsciiEOFTimeout));
-  lblPortCloseVal.Caption :=Floattostr(FrmMain.PortCloseTimer.Interval / 1000);
+  lblEOFVal.Caption :=
+    intToStr(Ticks2Secs(FrmMain.ApdProtocol1.AsciiEOFTimeout));
+  lblPortCloseVal.Caption := intToStr(srcMain.PortCloseTime);
 
- end;
+end;
 
- end.
+end.

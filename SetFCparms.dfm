@@ -2,7 +2,7 @@ object SetFCparmsFrm: TSetFCparmsFrm
   Left = 0
   Top = 0
   Caption = 'Setup Parameters'
-  ClientHeight = 300
+  ClientHeight = 302
   ClientWidth = 253
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
@@ -95,17 +95,20 @@ object SetFCparmsFrm: TSetFCparmsFrm
   end
   object PyDllName: TLabeledEdit
     Left = 8
-    Top = 109
+    Top = 114
     Width = 121
     Height = 21
     EditLabel.Width = 40
     EditLabel.Height = 13
     EditLabel.Caption = 'dll Name'
+    EditLabel.Color = clBtnFace
+    EditLabel.ParentColor = False
+    ReadOnly = True
     TabOrder = 8
   end
   object cbPyVersions: TComboBox
     Left = 135
-    Top = 109
+    Top = 114
     Width = 98
     Height = 21
     Style = csDropDownList

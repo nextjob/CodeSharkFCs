@@ -5,19 +5,22 @@ program CodeSharkFCs;
 
 uses
   Vcl.Forms,
-  srcMain in 'srcMain.pas' {FrmMain},
-  Vcl.Themes,
-  uHighlighterProcs in 'uHighlighterProcs.pas',
-  About in 'About.pas' {AboutBox},
-  SetFCparms in 'SetFCparms.pas' {SetFCparmsFrm},
-  SetTool in 'SetTool.pas' {SetToolFRM},
-  FreeCad in 'FreeCad.pas' {FreeCadFrm},
-  srcExceptionDialog in 'srcExceptionDialog.pas' {ExceptionDialog},
-  cmset in 'cmset.pas' {ComPortOptions},
-  ptops in 'ptops.pas' {ProtocolOptions},
-  Settings in 'Settings.pas' {FrmSettings},
-  SendRecvDlg in 'SendRecvDlg.pas' {FrmSendRecvDlg},
-  AsciiStatusU in 'AsciiStatusU.pas' {AsciiStatusF};
+  srcMain in 'srcMain.pas' {FrmMain} ,
+  About in 'About.pas' {AboutBox} ,
+  SetFCparms in 'SetFCparms.pas' {SetFCparmsFrm} ,
+  SetTool in 'SetTool.pas' {SetToolFRM} ,
+  FreeCad in 'FreeCad.pas' {FreeCadFrm} ,
+  srcExceptionDialog in 'srcExceptionDialog.pas' {ExceptionDialog} ,
+  cmset in 'cmset.pas' {ComPortOptions} ,
+  ptops in 'ptops.pas' {ProtocolOptions} ,
+  Settings in 'Settings.pas' {FrmSettings} ,
+  SendRecvDlg in 'SendRecvDlg.pas' {FrmSendRecvDlg} ,
+  AsciiStatusU in 'AsciiStatusU.pas' {AsciiStatusF} ,
+  PortClsTime in 'PortClsTime.pas' {FrmPortClsTm} ,
+  tsttrm in 'tsttrm.pas' {FrmTrm} ,
+  dlgConfirmReplace in 'dlgConfirmReplace.pas' {ConfirmReplaceDialog} ,
+  dlgReplaceText in 'dlgReplaceText.pas',
+  dlgSearchText in 'dlgSearchText.pas' {TextSearchDialog};
 
 {$R *.res}
 
@@ -33,6 +36,9 @@ begin
   Application.CreateForm(TFrmSettings, FrmSettings);
   Application.CreateForm(TFrmSendRecvDlg, FrmSendRecvDlg);
   Application.CreateForm(TAsciiStatusF, AsciiStatusF);
+  Application.CreateForm(TFrmPortClsTm, FrmPortClsTm);
+  Application.CreateForm(TFrmTrm, FrmTrm);
+  Application.CreateForm(TConfirmReplaceDialog, ConfirmReplaceDialog);
   Application.Run;
 
 end.

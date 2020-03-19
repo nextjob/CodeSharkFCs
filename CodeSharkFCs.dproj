@@ -138,7 +138,6 @@
         <DCCReference Include="srcMain.pas">
             <Form>FrmMain</Form>
         </DCCReference>
-        <DCCReference Include="uHighlighterProcs.pas"/>
         <DCCReference Include="About.pas">
             <Form>AboutBox</Form>
             <FormType>dfm</FormType>
@@ -179,6 +178,23 @@
             <Form>AsciiStatusF</Form>
             <FormType>dfm</FormType>
         </DCCReference>
+        <DCCReference Include="PortClsTime.pas">
+            <Form>FrmPortClsTm</Form>
+            <FormType>dfm</FormType>
+        </DCCReference>
+        <DCCReference Include="tsttrm.pas">
+            <Form>FrmTrm</Form>
+            <FormType>dfm</FormType>
+        </DCCReference>
+        <DCCReference Include="dlgConfirmReplace.pas">
+            <Form>ConfirmReplaceDialog</Form>
+            <FormType>dfm</FormType>
+        </DCCReference>
+        <DCCReference Include="dlgReplaceText.pas"/>
+        <DCCReference Include="dlgSearchText.pas">
+            <Form>TextSearchDialog</Form>
+            <FormType>dfm</FormType>
+        </DCCReference>
         <BuildConfiguration Include="Debug">
             <Key>Cfg_2</Key>
             <CfgParent>Base</CfgParent>
@@ -209,12 +225,6 @@
                 <Platform value="Win64">True</Platform>
             </Platforms>
             <Deployment Version="3">
-                <DeployFile LocalName="\CodeSharkFCs.exe" Configuration="Release" Class="ProjectOutput">
-                    <Platform Name="Win64">
-                        <RemoteName>CodeSharkFCs.exe</RemoteName>
-                        <Overwrite>true</Overwrite>
-                    </Platform>
-                </DeployFile>
                 <DeployFile LocalName="CodeSharkFCs.exe" Configuration="Debug" Class="ProjectOutput">
                     <Platform Name="Win64">
                         <RemoteName>CodeSharkFCs.exe</RemoteName>
@@ -223,6 +233,12 @@
                 </DeployFile>
                 <DeployFile LocalName="\CodeSharkFCs.exe" Configuration="Debug" Class="ProjectOutput">
                     <Platform Name="Win32">
+                        <RemoteName>CodeSharkFCs.exe</RemoteName>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
+                </DeployFile>
+                <DeployFile LocalName="\CodeSharkFCs.exe" Configuration="Release" Class="ProjectOutput">
+                    <Platform Name="Win64">
                         <RemoteName>CodeSharkFCs.exe</RemoteName>
                         <Overwrite>true</Overwrite>
                     </Platform>

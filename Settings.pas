@@ -1,7 +1,5 @@
 { This file is part of CodeSharkFCs
 
-  Copyright (C) 2020 Nextjob Solutions, LLC.
-
   This source is free software; you can redistribute it and/or modify it under
   the terms of the GNU General Public License as published by the Free
   Software Foundation; either version 2 of the License, or (at your option)
@@ -16,20 +14,42 @@
   at <http://www.gnu.org/copyleft/gpl.html>. You can also obtain it by writing
   to the Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor,Boston, MA 02110 USA
 }
+
 unit Settings;
 
 interface
 
 uses
   Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
-  Dialogs, StdCtrls, ExtCtrls;
+  Dialogs, StdCtrls, ExtCtrls, ComCtrls;
 
 type
   TFrmSettings = class(TForm)
+    PageControl1: TPageControl;
+    TabSheet1: TTabSheet;
+    FileExtLBL: TLabel;
+    GutterCB: TCheckBox;
+    NbrsOnGutterCB: TCheckBox;
+    FilterOnOpenCB: TCheckBox;
+    RemoveSpacesCB: TCheckBox;
+    AddPercentCB: TCheckBox;
+    Clear1stBlockCB: TCheckBox;
     FileExtLBX: TListBox;
-    Label1: TLabel;
+    FilterOnSendCB: TCheckBox;
+    FilterOnReceiveCB: TCheckBox;
+    FilterPanel: TPanel;
+    TabSheet2: TTabSheet;
+    TracingCB: TCheckBox;
+    ViewTraceBtn: TButton;
+    ViewHistBtn: TButton;
+    TestTermBtn: TButton;
+
     procedure FileExtLBXClick(Sender: TObject);
-    procedure FormActivate(Sender: TObject);
+    procedure GutterCBClick(Sender: TObject);
+    procedure NbrsOnGutterCBClick(Sender: TObject);
+    procedure ViewHistBtnClick(Sender: TObject);
+    procedure ViewTraceBtnClick(Sender: TObject);
+    procedure TestTermBtnClick(Sender: TObject);
   private
     { Private declarations }
   public
@@ -42,7 +62,7 @@ var
 implementation
 
 Uses
-  srcMain;
+  srcMain, tsttrm;
 
 {$R *.dfm}
 
@@ -62,25 +82,76 @@ begin
     5:
       FrmMain.DefaultFileExtension := '';
   end;
-  FrmMain.SetDefaultFileExtension;
 end;
 
-procedure TFrmSettings.FormActivate(Sender: TObject);
+procedure TFrmSettings.GutterCBClick(Sender: TObject);
 begin
-  // set the file extension index based on default file extension
+  FrmMain.GutterExecute;
+end;
 
-  If FrmMain.DefaultFileExtension = 'G' Then
-    FrmSettings.FileExtLBX.ItemIndex := 0
-  Else If FrmMain.DefaultFileExtension = 'T' Then
-    FrmSettings.FileExtLBX.ItemIndex := 1
-  Else If FrmMain.DefaultFileExtension = 'TXT' Then
-    FrmSettings.FileExtLBX.ItemIndex := 2
-  Else If FrmMain.DefaultFileExtension = 'NC' Then
-    FrmSettings.FileExtLBX.ItemIndex := 3
-  Else If FrmMain.DefaultFileExtension = 'PRO' Then
-    FrmSettings.FileExtLBX.ItemIndex := 4
+procedure TFrmSettings.NbrsOnGutterCBClick(Sender: TObject);
+begin
+  FrmMain.GutterExecute;
+end;
+
+procedure TFrmSettings.TestTermBtnClick(Sender: TObject);
+begin
+  If FrmMain.ApdComPort1.ComNumber = 0 Then
+  Begin
+    FrmMain.ConfigurePortExecute(Sender)
+  End;
+  If FrmMain.ApdComPort1.ComNumber = 0 Then
+  Begin
+    ShowMessage('Comm Port Not Set')
+  End
   Else
-    FrmSettings.FileExtLBX.ItemIndex := 5;
+  Begin
+    // MnuSend.Enabled := FALSE;
+    // Configure1.Enabled := FALSE;
+    // MnuReceive.Enabled := FALSE;
+    // MnuTestTerminal.Enabled := FALSE;
+    TestTermBtn.Enabled := false;
+    FrmMain.DisableMenuItems;
+    FrmTrm.show;
+  End;
+end;
+
+procedure TFrmSettings.ViewHistBtnClick(Sender: TObject);
+Var
+  Cln: STRING;
+  Pln: Array [0 .. 256] Of AnsiChar;
+Begin
+  // view log file in Notepad
+  Cln := '';
+  If FileExists(srcMain.AproHstFn) = TRUE Then
+  Begin
+    Cln := 'Notepad.exe ' + srcMain.AproHstFn;
+    Try
+      StrPCopy(Pln, Cln);
+      WinExec(Pln, SW_SHOWNORMAL);
+    Except
+      exit;
+    End;
+  End;
+end;
+
+procedure TFrmSettings.ViewTraceBtnClick(Sender: TObject);
+Var
+  Cln: STRING;
+  Pln: Array [0 .. 256] Of AnsiChar;
+Begin
+  // view log file in Notepad
+  Cln := '';
+  If FileExists(srcMain.AproTrcFn) = TRUE Then
+  Begin
+    Cln := 'Notepad.exe ' + srcMain.AproTrcFn;
+    Try
+      StrPCopy(Pln, Cln);
+      WinExec(Pln, SW_SHOWNORMAL);
+    Except
+      exit;
+    End;
+  End;
 end;
 
 End.

@@ -1,7 +1,5 @@
 { This file is part of CodeSharkFCs
 
-  Copyright (C) 2020 Nextjob Solutions, LLC.
-
   This source is free software; you can redistribute it and/or modify it under
   the terms of the GNU General Public License as published by the Free
   Software Foundation; either version 2 of the License, or (at your option)
@@ -23,7 +21,8 @@ interface
 uses
   Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants,
   System.Classes, System.IOUtils, System.IniFiles, Vcl.Graphics,
-  Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.StdCtrls, Vcl.ExtCtrls, FileCtrl,PythonEngine,
+  Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.StdCtrls, Vcl.ExtCtrls, FileCtrl,
+  PythonEngine,
   Vcl.ComCtrls;
 
 type
@@ -55,7 +54,7 @@ type
 
 var
   SetFCparmsFrm: TSetFCparmsFrm;
-  PyRegVersion : string;
+  PyRegVersion: string;
 
 implementation
 
@@ -69,12 +68,11 @@ Const
   ScriptsSection = 'Scripts';
   WarningsSection = 'Warnings';
 
-
 procedure TSetFCparmsFrm.cbPyVersionsSelect(Sender: TObject);
 begin
-// cbPyVersions.ItemIndex index to selected python verstion
-  PyDllName.Text := PYTHON_KNOWN_VERSIONS[cbPyVersions.ItemIndex+1].DllName;
-  PyRegVersion := PYTHON_KNOWN_VERSIONS[cbPyVersions.ItemIndex+1].RegVersion;
+  // cbPyVersions.ItemIndex index to selected python verstion
+  PyDllName.Text := PYTHON_KNOWN_VERSIONS[cbPyVersions.ItemIndex + 1].DllName;
+  PyRegVersion := PYTHON_KNOWN_VERSIONS[cbPyVersions.ItemIndex + 1].RegVersion;
 end;
 
 procedure TSetFCparmsFrm.FormClose(Sender: TObject; var Action: TCloseAction);
@@ -84,11 +82,11 @@ end;
 
 procedure TSetFCparmsFrm.FormCreate(Sender: TObject);
 var
-  PyEngineVersion : TPythonVersionProp;
-// create a dropdown list of python versions currently defined in Pythom4delphi engine
+  PyEngineVersion: TPythonVersionProp;
+  // create a dropdown list of python versions currently defined in Pythom4delphi engine
 
 begin
-   for PyEngineVersion in PYTHON_KNOWN_VERSIONS do
+  for PyEngineVersion in PYTHON_KNOWN_VERSIONS do
     cbPyVersions.Items.Add(PyEngineVersion.DllName);
 end;
 
@@ -107,7 +105,7 @@ begin
 
   // read in the ini file
   Try
-    Inif := TMemIniFile.Create(FrmMain.AppDataPath + '\' + MyAppName + '.ini');
+    Inif := TMemIniFile.Create(FrmMain.AppDataPath + '\' + srcMain.IniFileName);
     PythonHome.Text := Inif.ReadString(PathSection, 'PythonHome', '');
     // PyDllPath.Text := Inif.ReadString(PathSection, 'PythonDllPath', '');
     PyDllName.Text := Inif.ReadString(PathSection, 'PythonDllName', '');
@@ -116,16 +114,22 @@ begin
     // FreeCadBin.Text := Inif.ReadString(PathSection, 'FreeCadBin', '');
     FreeCadMod.Text := Inif.ReadString(PathSection, 'FreeCadMod', '');
 
-    cbCustStart.Checked := Inif.ReadBool(ScriptsSection,'Custom_Start_Script',cbCustStart.Checked);
-    cbCustPanel.Checked := Inif.ReadBool(ScriptsSection,'Custom_View_Panel_Script', cbCustPanel.Checked);
-    cbCustSelectObs.Checked := Inif.ReadBool(ScriptsSection,'Custom_Selection_Observer_Script', cbCustSelectObs.Checked);
-    cbCustShutdown.Checked := Inif.ReadBool(ScriptsSection,'Custom_Shutdown_Script', cbCustShutdown.Checked);
-    cbOverWriteScript.Checked := Inif.ReadBool(ScriptsSection,'Overwrite_Custom_Scripts', cbOverWriteScript.Checked);
+    cbCustStart.Checked := Inif.ReadBool(ScriptsSection, 'Custom_Start_Script',
+      cbCustStart.Checked);
+    cbCustPanel.Checked := Inif.ReadBool(ScriptsSection,
+      'Custom_View_Panel_Script', cbCustPanel.Checked);
+    cbCustSelectObs.Checked := Inif.ReadBool(ScriptsSection,
+      'Custom_Selection_Observer_Script', cbCustSelectObs.Checked);
+    cbCustShutdown.Checked := Inif.ReadBool(ScriptsSection,
+      'Custom_Shutdown_Script', cbCustShutdown.Checked);
+    cbOverWriteScript.Checked := Inif.ReadBool(ScriptsSection,
+      'Overwrite_Custom_Scripts', cbOverWriteScript.Checked);
 
-    cbFreeCADWarnDisable.Checked := Inif.ReadBool(WarningsSection,'Disable_FreeCAD_Window_Warning', cbFreeCADWarnDisable.Checked);
-    LicenseRead := Inif.ReadBool(WarningsSection,'LicenseRead', False);
-    ExtraDebugging := Inif.ReadBool(WarningsSection,'ExtraDebugging', False); 
-    FormatForPathDisplay := Inif.ReadBool(WarningsSection,'FormatForPathDisplay', False);
+    cbFreeCADWarnDisable.Checked := Inif.ReadBool(WarningsSection,
+      'Disable_FreeCAD_Window_Warning', cbFreeCADWarnDisable.Checked);
+    ExtraDebugging := Inif.ReadBool(WarningsSection, 'ExtraDebugging', False);
+    FormatForPathDisplay := Inif.ReadBool(WarningsSection,
+      'FormatForPathDisplay', False);
 
   Finally
     Inif.Free;
@@ -140,7 +144,7 @@ var
 
 begin
   Try
-    Inif := TMemIniFile.Create(FrmMain.AppDataPath + '\' + MyAppName + '.ini');
+    Inif := TMemIniFile.Create(FrmMain.AppDataPath + '\' + srcMain.IniFileName);
 
     if (Length(PythonHome.Text) > 0) and (TDirectory.Exists(PythonHome.Text))
     then
@@ -152,13 +156,13 @@ begin
       Inif.WriteString(PathSection, 'PythonDllPath', PyDllPath.Text)
       else
       showMessage('Python Dll Path not set, ' + PyDllPath.Text + ' not found');
-     }
+    }
     if (Length(PyDllName.Text) > 0) and
       (FileExists(PythonHome.Text + '\' + PyDllName.Text)) then
       Inif.WriteString(PathSection, 'PythonDllName', PyDllName.Text)
     else
       showMessage('Python Dll Name not set, ' + PythonHome.Text + '\' +
-      PyDllName.Text + ' not found');
+        PyDllName.Text + ' not found');
 
     if (Length(PyRegVersion) > 0) then
       Inif.WriteString(PathSection, 'RegVersion', PyRegVersion)
@@ -181,15 +185,20 @@ begin
         ' not found');
 
     Inif.WriteBool(ScriptsSection, 'Custom_Start_Script', cbCustStart.Checked);
-    Inif.WriteBool(ScriptsSection, 'Custom_View_Panel_Script',cbCustPanel.Checked);
-    Inif.WriteBool(ScriptsSection, 'Custom_Selection_Observer_Script',cbCustSelectObs.Checked);
-    Inif.WriteBool(ScriptsSection, 'Custom_Shutdown_Script',cbCustShutdown.Checked);
-    Inif.WriteBool(ScriptsSection, 'Overwrite_Custom_Scripts',cbOverWriteScript.Checked);
+    Inif.WriteBool(ScriptsSection, 'Custom_View_Panel_Script',
+      cbCustPanel.Checked);
+    Inif.WriteBool(ScriptsSection, 'Custom_Selection_Observer_Script',
+      cbCustSelectObs.Checked);
+    Inif.WriteBool(ScriptsSection, 'Custom_Shutdown_Script',
+      cbCustShutdown.Checked);
+    Inif.WriteBool(ScriptsSection, 'Overwrite_Custom_Scripts',
+      cbOverWriteScript.Checked);
 
-    Inif.WriteBool(WarningsSection, 'Disable_FreeCAD_Window_Warning',cbFreeCADWarnDisable.Checked);
-    Inif.WriteBool(WarningsSection, 'LicenseRead', LicenseRead); 
-    Inif.WriteBool(WarningsSection, 'ExtraDebugging',ExtraDebugging);
-    Inif.WriteBool(WarningsSection, 'FormatForPathDisplay',FormatForPathDisplay);
+    Inif.WriteBool(WarningsSection, 'Disable_FreeCAD_Window_Warning',
+      cbFreeCADWarnDisable.Checked);
+    Inif.WriteBool(WarningsSection, 'ExtraDebugging', ExtraDebugging);
+    Inif.WriteBool(WarningsSection, 'FormatForPathDisplay',
+      FormatForPathDisplay);
 
   Finally
     Inif.UpdateFile;
@@ -244,7 +253,6 @@ end;
   'Select Python Dll Path ', 'Python Dll Path (typically: ..\FreeCad\bin)') then
   PyDllPath.Text := ADir[0];
   end; }
-
 
 procedure TSetFCparmsFrm.PythonHomeClick(Sender: TObject);
 var

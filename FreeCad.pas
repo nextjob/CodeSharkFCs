@@ -1,7 +1,5 @@
 { This file is part of CodeSharkFCs
 
-  Copyright (C) 2020 Nextjob Solutions, LLC.
-
   This source is free software; you can redistribute it and/or modify it under
   the terms of the GNU General Public License as published by the Free
   Software Foundation; either version 2 of the License, or (at your option)
@@ -33,10 +31,10 @@ unit FreeCad;
 // To Fix:
 //
 // The selection observer script is very simple.
-// It assumes it is dealing with edges or points. 
-//  At this time is does not work well with Faces. 
-//  look at ..\FreeCadNotes\ListSelectedObjects.py on how to parse thru all components of an object
-//  (find the componentv via name? or label? then output its geometry?)
+// It assumes it is dealing with edges or points.
+// At this time is does not work well with Faces.
+// look at ..\FreeCadNotes\ListSelectedObjects.py on how to parse thru all components of an object
+// (find the componentv via name? or label? then output its geometry?)
 //
 // Floating point division by zero when first run import (python 3.6)
 // add MaskFPUExceptions(True);
@@ -47,11 +45,11 @@ unit FreeCad;
 // set PythonEngine1.SetPythonHome to PythonHome  in PythonEngine1BeforeLoad
 //
 // Error - could not load a Python engine
-// FreeCAD does not ?always? load all the required Python files for python4delphi to interface properly.  
+// FreeCAD does not ?always? load all the required Python files for python4delphi to interface properly.
 // Installing python from python.org (currently version Python 3.6.6). Fixes this issue.
 //
-// Error - This application failed to start because it could not find or load the Qt platform plugin "windows" 
-// Problem with QT5 looking for ..\platforms\ in the directory of the executable (in this case CodeSharkFC.exe).  
+// Error - This application failed to start because it could not find or load the Qt platform plugin "windows"
+// Problem with QT5 looking for ..\platforms\ in the directory of the executable (in this case CodeSharkFC.exe).
 // You should be able to set environment variables to point to ..\FreeCAD19\bin\platforms but I have not had any luck with this.
 // Work around is to copy contents of ..\FreeCAD19\bin\platforms to ..\CodeSharkFC\platforms
 
@@ -328,9 +326,9 @@ function TFreeCadFrm.ParseFreeCADString(Indata: String): Boolean;
 // ie:  ('line', '0.0', '0.0', '0.0', '50.0', '0.0', '0.0', '', '', '', '')
 
 Var
-  Params: array[0..Paramsz] of string;
-  TempStr, ParseParam,  MyPid: String;
-   i,x : integer;
+  Params: array [0 .. ParamSz] of string;
+  TempStr, ParseParam, MyPid: String;
+  i, x: Integer;
 Begin
   Result := True;
   TempStr := StringReplace(Indata, '(', '', [rfReplaceAll, rfIgnoreCase]);
@@ -341,40 +339,43 @@ Begin
   x := 0;
   ParseParam := '';
   If length(TempStr) > 0 then
-    begin
-      For i := 1 to length(TempStr) do
-      Begin
-         If TempStr[i] = ',' then
-         Begin
-           Params[x] := ParseParam;
-           inc(x);
-           ParseParam := '';
-
-           If x > Paramsz Then
-             Begin
-             // prevent array overflow condition, someone added fields to passed string but did not increase Paramsz constant to match
-               ShowMessage('More Fields passed than expected, Unable to complete parsing' +CRLF+ '(' + TempStr +')');
-               if ExtraDebugging then FrmMain.SynEdit.Lines.Add('(' + TempStr +')');
-               Result := False;
-               Exit;
-             end;
-
-         end
-         else
-           ParseParam := ParseParam + TempStr[i];
-      end;
-      Params[x] := ParseParam;  // save last parameter
-    end
-  Else // somethng rotten here, exit with return code falses
+  begin
+    For i := 1 to length(TempStr) do
     Begin
-      Result := False;
-      Exit;
+      If TempStr[i] = ',' then
+      Begin
+        Params[x] := ParseParam;
+        inc(x);
+        ParseParam := '';
+
+        If x > ParamSz Then
+        Begin
+          // prevent array overflow condition, someone added fields to passed string but did not increase Paramsz constant to match
+          ShowMessage
+            ('More Fields passed than expected, Unable to complete parsing' +
+            CrLf + '(' + TempStr + ')');
+          if ExtraDebugging then
+            FrmMain.SynEdit.Lines.Add('(' + TempStr + ')');
+          Result := False;
+          Exit;
+        end;
+
+      end
+      else
+        ParseParam := ParseParam + TempStr[i];
     end;
+    Params[x] := ParseParam; // save last parameter
+  end
+  Else // somethng rotten here, exit with return code falses
+  Begin
+    Result := False;
+    Exit;
+  end;
 
 
 
-//  FrmMain.SynEdit.Lines.Add(TempStr);
-//  Params := TempStr.Split([',']);
+  // FrmMain.SynEdit.Lines.Add(TempStr);
+  // Params := TempStr.Split([',']);
 
   if cbRawOut.Checked then
     PyOutMemo.Lines.Add(Indata);
@@ -411,7 +412,8 @@ Begin
   else
   // write selections to the editor memo only if cbBypassSel not checked
   begin
-    if ExtraDebugging then WrtDebugInfo(Params);
+    if ExtraDebugging then
+      WrtDebugInfo(Params);
 
     if not(cbBypassSel.Checked) then
 
@@ -471,14 +473,19 @@ begin
   FrmMain.SynEdit.Lines.Add(MemoLine);
   SaveLastPoint(PosX, PosY, PosZ);
 end;
+
 procedure TFreeCadFrm.WrtDebugInfo(Indata: Array of String);
 Begin
-    // some debugging stuff
-    FrmMain.SynEdit.Lines.Add('(Last XYZ: ' + LastX +' '+ LastY +' '+ LastZ + ')') ;
-    FrmMain.SynEdit.Lines.Add('(Geo: ' + Indata[Geo] + ')');
-    FrmMain.SynEdit.Lines.Add('(XYZ1: ' + Indata[X1] + ' ' + Indata[Y1] + ' ' + Indata[Z1] + ')');
-    FrmMain.SynEdit.Lines.Add('(XYZ2: ' + Indata[X2] + ' ' + Indata[Y2] + ' ' + Indata[Z2] + ')');
-    FrmMain.SynEdit.Lines.Add('(Rad:  ' + Indata[Rad] + ' Cntr XYZ: ' + Indata[CtrX] + ' ' + Indata[CtrY] + ' ' + Indata[CtrZ] + ')');
+  // some debugging stuff
+  FrmMain.SynEdit.Lines.Add('(Last XYZ: ' + LastX + ' ' + LastY + ' ' +
+    LastZ + ')');
+  FrmMain.SynEdit.Lines.Add('(Geo: ' + Indata[Geo] + ')');
+  FrmMain.SynEdit.Lines.Add('(XYZ1: ' + Indata[X1] + ' ' + Indata[Y1] + ' ' +
+    Indata[Z1] + ')');
+  FrmMain.SynEdit.Lines.Add('(XYZ2: ' + Indata[X2] + ' ' + Indata[Y2] + ' ' +
+    Indata[Z2] + ')');
+  FrmMain.SynEdit.Lines.Add('(Rad:  ' + Indata[Rad] + ' Cntr XYZ: ' +
+    Indata[CtrX] + ' ' + Indata[CtrY] + ' ' + Indata[CtrZ] + ')');
 
 end;
 
@@ -493,7 +500,7 @@ procedure TFreeCadFrm.WrtLine(Indata: Array of String);
 // Var
 // MemoLine: String;
 begin
-  if Length(LastX) > 0 then // Have we output at least one point?
+  if length(LastX) > 0 then // Have we output at least one point?
     // Yes, is it the same as the start of this line?
     // if so only output ending point
     if IsSamePoint(Indata[X1], Indata[Y1], Indata[Z1]) then
@@ -517,11 +524,12 @@ end;
 
 procedure TFreeCadFrm.WrtCircle(Indata: Array of String);
 Var
- SaveFormatForPathDisplay : boolean;
-// for circles we write out center point
+  SaveFormatForPathDisplay: Boolean;
+  // for circles we write out center point
 begin
-  SaveFormatForPathDisplay := FormatForPathDisplay; // for circle center point never send g code regarless of flag
-  FormatForPathDisplay := false;
+  SaveFormatForPathDisplay := FormatForPathDisplay;
+  // for circle center point never send g code regarless of flag
+  FormatForPathDisplay := False;
   OutPutPoint(Indata[CtrX], Indata[CtrY], Indata[CtrZ]);
   FormatForPathDisplay := SaveFormatForPathDisplay;
 end;
@@ -535,7 +543,7 @@ procedure TFreeCadFrm.WrtArc(Indata: Array of String);
 // NOTE we are assuming XY Plane (G17) !!!!!
 
 begin
-  if Length(LastX) > 0 then // Have we output at least one point?
+  if length(LastX) > 0 then // Have we output at least one point?
   else
   begin
     // started on arc, can only assume CCW
@@ -553,7 +561,8 @@ begin
     WrtArvMove('G2', Indata[X1], Indata[Y1], Indata[Z1], Indata[CtrX],
       Indata[CtrY], Indata[CtrZ])
   else
-    ShowMessage('Unable to calculate Arc Move, Suggest Selection of End Point Elements vs Edges (Lines)');
+    ShowMessage
+      ('Unable to calculate Arc Move, Suggest Selection of End Point Elements vs Edges (Lines)');
 
 end;
 
@@ -633,7 +642,7 @@ begin
   Begin
     MsgText := 'Not Enough Edges Selected (>1), Path generation not possible';
     MessageDlg(MsgText, mtWarning, [mbOK], 0);
-    exit
+    Exit
   End;
 
   ScriptLns.Clear;
@@ -641,7 +650,7 @@ begin
   ScriptLns.Add('print(''Edges: '' + str(len(MyEdgeList)))');
   PyOutMemo.Lines.Add('Execute script to get the edge list');
   if not(ExeScript(ScriptLns)) then
-    exit;
+    Exit;
 
   // create MyCurve
   ScriptLns.Clear;
@@ -657,7 +666,7 @@ begin
   PyOutMemo.Lines.Add('Execute script to create MyCurve');
   PyOutMemo.Lines.Add(PathKurveStr);
   if not(ExeScript(ScriptLns)) then
-    exit;
+    Exit;
 
   // create the  PathKurveUtils.profile function  call
   //
@@ -684,7 +693,7 @@ begin
   PyOutMemo.Lines.Add('Execute script PathKurveUtils.profile function  call');
   PyOutMemo.Lines.Add(PathKurveStr);
   if not(ExeScript(ScriptLns)) then
-    exit;
+    Exit;
 
   // send the gcode to the editor
   //
@@ -699,7 +708,7 @@ begin
     ''','' error generating G-Code'','''','''','''','''','''','''','''','''','''')');
   PyOutMemo.Lines.Add('Execute script Retrieve goutput ');
   if not(ExeScript(ScriptLns)) then
-    exit;
+    Exit;
 
   // finally show the path
   //
@@ -804,15 +813,16 @@ begin
     PythonEngine1.DllName;
 
   if not(FileExists(MyPyDllPath)) then
-    Begin
-      ShowMessage('Cannot Find Python dll: ' + MyPyDllPath + ' Python dll path and or name not set, or set incorrectly');
-      ShowMessage('Cannot Start FreeCAD without Python!');
-    End
+  Begin
+    ShowMessage('Cannot Find Python dll: ' + MyPyDllPath +
+      ' Python dll path and or name not set, or set incorrectly');
+    ShowMessage('Cannot Start FreeCAD without Python!');
+  End
   else
-    Begin
-      PythonEngine1.LoadDll;
-      MaskFPUExceptions(True);
-    End;
+  Begin
+    PythonEngine1.LoadDll;
+    MaskFPUExceptions(True);
+  End;
 end;
 
 procedure TFreeCadFrm.LoadStartupScript;
@@ -1031,7 +1041,8 @@ Begin
     ScriptLns.Add('            MyY1 = MyStr(pnt[1])');
     ScriptLns.Add('            MyZ1 = MyStr(pnt[2])');
     ScriptLns.Add('        elif fnmatch.fnmatch(str(obj), ''Face*''): ');
-    ScriptLns.Add('            MyGeo = ''unknown-Object:'' + str(obj) + ''-subobject:'' + SubObject');
+    ScriptLns.Add
+      ('            MyGeo = ''unknown-Object:'' + str(obj) + ''-subobject:'' + SubObject');
     ScriptLns.Add('        elif fnmatch.fnmatch(SubObject, ''Edge*''): ');
     // could be Line, Circle or Arc
     ScriptLns.Add('            try:');
@@ -1071,7 +1082,8 @@ Begin
     ScriptLns.Add('        else:');
     // unknown (or un handled) type
     ScriptLns.Add('            MyGeo = ''unknown: '' + SubObject');
-    ScriptLns.Add('        print( ''Object: '' + str(obj) + '' subobject: '' + SubObject)');
+    ScriptLns.Add
+      ('        print( ''Object: '' + str(obj) + '' subobject: '' + SubObject)');
     ScriptLns.Add('        print( ''Geo:    '' + MyGeo)');
     ScriptLns.Add('        EdgeCnt.Value = len(MyEdgeList)');
     ScriptLns.Add
@@ -1194,10 +1206,11 @@ begin
   End;
   //
   // Note (or warn) for QT bug, "/platforms" directory must be local to codeshark exe, look for it
-  //  01/22/2020 this looks like it has been fixed, do not warn
-  //  02/18/2020 when using  FreeCAD_0.19.19635_x64_Conda_Py3QT5-WinVS2015   it is back again!
+  // 01/22/2020 this looks like it has been fixed, do not warn
+  // 02/18/2020 when using  FreeCAD_0.19.19635_x64_Conda_Py3QT5-WinVS2015   it is back again!
   if not DirectoryExists(ExtractFilePath(ParamStr(0)) + '\platforms') then
-    ShowMessage ('Warning ... Due to QT5 issue, "platforms" directory must be copied from FreeCad ../bin/platforms to directory containing CodeSharkFC exe file, it was not found.');
+    ShowMessage
+      ('Warning ... Due to QT5 issue, "platforms" directory must be copied from FreeCad ../bin/platforms to directory containing CodeSharkFC exe file, it was not found.');
   //
   FrmMain.Cursor := crHourGlass;
   FrmMain.StatusBar.Panels[0].Text := 'Script Statup';
@@ -1219,6 +1232,4 @@ begin
 
 end;
 
-
 end.
-

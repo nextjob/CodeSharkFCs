@@ -24,8 +24,8 @@ __Note:__ The sample application is a port of the Lazarus version https://github
 * Latest FreeCAD [v0.19pre](https://github.com/FreeCAD/FreeCAD/releases)
 * Delphi 10.3.3 Community Edition (https://www.embarcadero.com/products/delphi/starter)
 * [python4delphi](https://github.com/pyscripter/python4delphi) 
-* [TurboPack AsyncPro](https://github.com/TurboPack/AsyncPro)
-* [SynEdit](https://github.com/TurboPack/SynEdit)
+* [TurboPack AsyncPro](https://github.com/nextjob/AsyncPro)
+* [SynEdit](https://github.com/pyscripter/SynEdit-2)
 * [JCL](https://github.com/project-jedi/jcl)
 * [JVCL](https://github.com/project-jedi/jvcl)
 

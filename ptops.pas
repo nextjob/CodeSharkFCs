@@ -1,7 +1,5 @@
 { This file is part of CodeSharkFCs
 
-  Copyright (C) 2020 Nextjob Solutions, LLC.
-
   This source is free software; you can redistribute it and/or modify it under
   the terms of the GNU General Public License as published by the Free
   Software Foundation; either version 2 of the License, or (at your option)
@@ -15,12 +13,12 @@
   A copy of the GNU General Public License is available on the World Wide Web
   at <http://www.gnu.org/copyleft/gpl.html>. You can also obtain it by writing
   to the Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor,Boston, MA 02110 USA
-  
-   This module is based on  ADXPROT.PAS part of TurboPower Async Professional
-   The Initial Developer of the Original Code is TurboPower Software 
-   Async Professional is subject to the Mozilla Public License Version 1.1  http://www.mozilla.org/MPL/
-   Async Professional source can be found at https://github.com/TurboPack/AsyncPro
-  
+
+  This module is based on  ADXPROT.PAS part of TurboPower Async Professional
+  The Initial Developer of the Original Code is TurboPower Software
+  Async Professional is subject to the Mozilla Public License Version 1.1  http://www.mozilla.org/MPL/
+  Async Professional source can be found at https://github.com/TurboPack/AsyncPro
+
 }
 { Global defines potentially affecting this unit }
 {$I AWDEFINE.INC}
@@ -175,7 +173,7 @@ begin
 
   // sPortclosetimeout.Text :=IntToStr(FrmMain.PortCloseTimer.Interval);
 
-  sPortclosetimeout.Text := Floattostr(FrmMain.PortCloseTimer.Interval / 1000);
+  sPortclosetimeout.Text := Floattostr(srcMain.PortCloseTime);
   { Execute }
   ShowModal;
   Result := ModalResult = mrOK;
@@ -237,7 +235,7 @@ begin
   FrmMain.ApdProtocol1.AsciiLFTranslation :=
     TAsciiEOLTranslation(sLFTrans.ItemIndex);
   FrmMain.ApdProtocol1.AsciiEOFTimeout := Secs2Ticks(Str2Int(sEOFTimeout.Text));
-  FrmMain.PortCloseTimer.Interval := Str2Int(sPortclosetimeout.Text) * 1000;
+  srcMain.PortCloseTime := Str2Int(sPortclosetimeout.Text);
   ModalResult := idOK;
 end;
 

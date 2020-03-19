@@ -1,7 +1,5 @@
 { This file is part of CodeSharkFCs
 
-  Copyright (C) 2020 Nextjob Solutions, LLC.
-
   This source is free software; you can redistribute it and/or modify it under
   the terms of the GNU General Public License as published by the Free
   Software Foundation; either version 2 of the License, or (at your option)
@@ -62,13 +60,13 @@ var
 implementation
 
 uses
-    srcMain;
+  srcMain;
 
 {$R *.dfm}
 
 procedure TAsciiStatusF.psCancelClick(Sender: TObject);
 begin
- FrmMain.ApdProtocol1.CancelProtocol;
+  FrmMain.ApdProtocol1.CancelProtocol;
 end;
 
 end.
