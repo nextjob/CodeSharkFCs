@@ -29,19 +29,6 @@ __Note:__ The sample application is a port of the Lazarus version https://github
 * [JCL](https://github.com/project-jedi/jcl)
 * [JVCL](https://github.com/project-jedi/jvcl)
 
-## Installation
-* Select the Python version to be used in `python4delphi` by editing:  
-`..\python4delphi-master\PythonForDelphi\Components\Sources\Core\Definition.Inc` 
-
-```pascal       
-//{$DEFINE PYTHON35}
- 
-{$DEFINE PYTHON36}
-
-//{$DEFINE PYTHON37}
-
-```
-      
 	   
 ## Notes
 * This program is designed with the assumption that you are working with 2D drawings.
