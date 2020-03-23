@@ -1,0 +1,57 @@
+<HTML><HEAD>
+	
+	<TITLE>Serial Communications</TITLE>
+	<META NAME="VIEWPORT" CONTENT="width=device-width">
+	<META NAME="AUTHOR" CONTENT="">
+	<META NAME="GENERATOR" CONTENT="HelpScribble 8.2.1">
+	<STYLE> span { display: inline-block; }</STYLE>
+</HEAD>
+<BODY BGCOLOR="#FFFFFF" TEXT="#000000" LINK="#0000FF" VLINK="#800080" ALINK="#FF0000">
+<P><FONT FACE="Arial, helvetica, sans-serif" SIZE="2">
+<A HREF="CodeSharkFC.html">Contents</A>
+ - <A HREF="idx.htm">Index</A>
+</FONT><HR></P>
+<FONT FACE="Arial, helvetica, sans-serif" COLOR="#0000FF" SIZE="5"><B>Serial Communications&nbsp;&nbsp;</B></FONT><BR>
+<BR>
+<FONT FACE="Arial, helvetica, sans-serif" SIZE="3">CodeSharkFCs uses the TurboPower Async Professional componet to handle serial port communications.</FONT><BR>
+<BR>
+<FONT FACE="Arial, helvetica, sans-serif" SIZE="3">The Reference Guide and Developers Guide for this component can be found at:</FONT><BR>
+<BR>
+<FONT FACE="Arial, helvetica, sans-serif" SIZE="4"><B><A HREF="hs9005.htm">AysncPro Documentation </A></B></FONT><FONT FACE="Arial, helvetica, sans-serif" COLOR="#800000" SIZE="4"><B></B></FONT><BR>
+<BR>
+<BR>
+<FONT FACE="Arial, helvetica, sans-serif" SIZE="3">There have been instances of CodeSharkFCs not sending out the last block of data to the receiving device. The problem appears to be</FONT><BR>
+<FONT FACE="Arial, helvetica, sans-serif" SIZE="3">that AsyncPro informs the controlling program (CodeSharkFCs) that file transmission is complete before that actual final characters are</FONT><BR>
+<FONT FACE="Arial, helvetica, sans-serif" SIZE="3"> transmitted out the device's or Window's i/o buffer.&nbsp; This results in CodeSharkFCs closing the serial port prior to the complete transmission&nbsp;</FONT><BR>
+<FONT FACE="Arial, helvetica, sans-serif" SIZE="3">of data. Once the serial port is closed, serial transmission stops. The Close Port Timeout setting has been added as a work around for this issue.&nbsp;</FONT><BR>
+<FONT FACE="Arial, helvetica, sans-serif" SIZE="3"><B>When using CodeSharkFCs for DNC, the user may need to adjust the timeout depending on the lenght of time need for the machine tool to complete&nbsp;</B></FONT><BR>
+<FONT FACE="Arial, helvetica, sans-serif" SIZE="3"><B>the final machining blocks.</B></FONT><BR>
+<BR>
+<FONT FACE="Arial, helvetica, sans-serif" SIZE="3">This issue may be a result of the changes made to the AsyncPro dispatcher at&nbsp; release 4.07, but still unknown.</FONT><BR>
+<BR>
+<FONT FACE="Arial, helvetica, sans-serif" SIZE="3">From the TurboPower Async Professional readme.txt file:</FONT><BR>
+<BR>
+<FONT FACE="Arial, helvetica, sans-serif" SIZE="2">4.2 Release 4.07</FONT><BR>
+<BR>
+<FONT FACE="Arial, helvetica, sans-serif" SIZE="2">Enhancements</FONT><BR>
+<FONT FACE="Arial, helvetica, sans-serif" SIZE="2">------------</FONT><BR>
+<BR>
+<FONT FACE="Arial, helvetica, sans-serif" SIZE="2">The serial port dispatcher was completely rewritten to make it less</FONT><BR>
+<FONT FACE="Arial, helvetica, sans-serif" SIZE="2">vulnerable to poorly behaved (blocking) event handlers.&nbsp; The new</FONT><BR>
+<FONT FACE="Arial, helvetica, sans-serif" SIZE="2">dispatcher will continue to buffer serial port input until it runs</FONT><BR>
+<FONT FACE="Arial, helvetica, sans-serif" SIZE="2">out of memory for buffers if any of the user's event handlers block.</FONT><BR>
+<FONT FACE="Arial, helvetica, sans-serif" SIZE="2">The output thread of the dispatcher is now double buffered to allow</FONT><BR>
+<FONT FACE="Arial, helvetica, sans-serif" SIZE="2">output to be written to the serial port while the user's thread</FONT><BR>
+<FONT FACE="Arial, helvetica, sans-serif" SIZE="2">continues to work.&nbsp; This improves throughput for some file transfer</FONT><BR>
+<FONT FACE="Arial, helvetica, sans-serif" SIZE="2">protocols like zmodem.</FONT><BR>
+<BR>
+<FONT FACE="Arial, helvetica, sans-serif" SIZE="2">If you encounter problems when using the new serial port dispatcher,</FONT><BR>
+<FONT FACE="Arial, helvetica, sans-serif" SIZE="2">define the conditional <B><U>UseAwWin32</U></B> and rebuild your project and / or</FONT><BR>
+<FONT FACE="Arial, helvetica, sans-serif" SIZE="2">packages.&nbsp; This will disable the new dispatcher and use the 4.06</FONT><BR>
+<FONT FACE="Arial, helvetica, sans-serif" SIZE="2">dispatcher in its place.&nbsp; If your problem goes away after doing this</FONT><BR>
+<FONT FACE="Arial, helvetica, sans-serif" SIZE="2">then you have probably discovered a bug in the new dispatcher and you</FONT><BR>
+<FONT FACE="Arial, helvetica, sans-serif" SIZE="2">should report it via the support news groups.</FONT><BR>
+<BR>
+<FONT FACE="Arial, helvetica, sans-serif" SIZE="3"><A HREF="hs100.htm">Home</A></FONT><FONT FACE="Arial, helvetica, sans-serif" COLOR="#800000" SIZE="3">
+</FONT>
+</BODY></HTML>

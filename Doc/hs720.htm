@@ -1,0 +1,86 @@
+<HTML><HEAD>
+	
+	<TITLE>Protocol Options</TITLE>
+	<META NAME="VIEWPORT" CONTENT="width=device-width">
+	<META NAME="AUTHOR" CONTENT="">
+	<META NAME="GENERATOR" CONTENT="HelpScribble 8.2.1">
+	<STYLE> span { display: inline-block; }</STYLE>
+</HEAD>
+<BODY BGCOLOR="#FFFFFF" TEXT="#000000" LINK="#0000FF" VLINK="#800080" ALINK="#FF0000">
+<P><FONT FACE="Arial, helvetica, sans-serif" SIZE="2">
+<A HREF="CodeSharkFC.html">Contents</A>
+ - <A HREF="idx.htm">Index</A>
+</FONT><HR></P>
+<FONT FACE="Arial, helvetica, sans-serif" COLOR="#0000FF" SIZE="5"><B>Protocol Options</B></FONT><BR>
+<BR>
+<FONT FACE="Arial, helvetica, sans-serif" COLOR="#800000" SIZE="3"><IMG SRC="Protocol.PNG" WIDTH="620" HEIGHT="505" BORDER="0"></FONT><BR>
+<BR>
+<FONT FACE="Arial, helvetica, sans-serif" SIZE="3">ASCII File Transfer Protocol*:</FONT><BR>
+<BR>
+<FONT FACE="Arial, helvetica, sans-serif" SIZE="3">The term ASCII protocol is a bit of a misnomer, because in an ASCII transfer neither side of</FONT><BR>
+<FONT FACE="Arial, helvetica, sans-serif" SIZE="3">the link is following well-documented rules. An ASCII protocol is really just a convenient</FONT><BR>
+<FONT FACE="Arial, helvetica, sans-serif" SIZE="3">way of transmitting a text file.</FONT><BR>
+<BR>
+<FONT FACE="Arial, helvetica, sans-serif" SIZE="3">It is difficult for the receiver to know when an ASCII transfer is over because there is no</FONT><BR>
+<FONT FACE="Arial, helvetica, sans-serif" SIZE="3">agreed-upon method for indicating termination. The ASCII protocol terminates on any of</FONT><BR>
+<FONT FACE="Arial, helvetica, sans-serif" SIZE="3">three conditions: when it receives a ^Z character, when it times out waiting for more data, or</FONT><BR>
+<FONT FACE="Arial, helvetica, sans-serif" SIZE="3">when the user aborts the protocol.</FONT><BR>
+<BR>
+<FONT FACE="Arial, helvetica, sans-serif" SIZE="3">The following parameters control the ASCII protocol:</FONT><BR>
+<BR>
+<FONT FACE="Arial, helvetica, sans-serif" SIZE="3">Inter Character Delay</FONT><BR>
+<FONT FACE="Arial, helvetica, sans-serif" SIZE="3">Determines the number of seconds or ticks to delay between characters during an ASCII file</FONT><BR>
+<FONT FACE="Arial, helvetica, sans-serif" SIZE="3">transfer.&nbsp; Usaully set to 0.</FONT><BR>
+<BR>
+<FONT FACE="Arial, helvetica, sans-serif" SIZE="3">Inter Line Delay</FONT><BR>
+<FONT FACE="Arial, helvetica, sans-serif" SIZE="3">Determines the number of seconds or ticks to delay between lines during an ASCII file transfer.</FONT><BR>
+<FONT FACE="Arial, helvetica, sans-serif" SIZE="3">Usually set to 0.</FONT><BR>
+<BR>
+<FONT FACE="Arial, helvetica, sans-serif" SIZE="3">Delay in Seconds or Ticks</FONT><BR>
+<FONT FACE="Arial, helvetica, sans-serif" SIZE="3">Specify whether the value given for Inter Character Delay and Inter Line Delay is in Ticks or Seconds.</FONT><BR>
+<FONT FACE="Arial, helvetica, sans-serif" SIZE="3">A Tick is the time unit used by the communication software (ASYNC Professional).&nbsp; Accounding to the ASYNC Pro documentation it roughly equates to 1/18 of a second.</FONT><BR>
+<FONT FACE="Arial, helvetica, sans-serif" SIZE="3">However, this seems to be system dependant. End user testing may (will) be required to determine actual value required.</FONT><BR>
+<BR>
+<FONT FACE="Arial, helvetica, sans-serif" SIZE="3">Ascii EOF Timeout</FONT><BR>
+<FONT FACE="Arial, helvetica, sans-serif" SIZE="3">Determines the number of seconds before an ASCII transfer is automatically terminated.</FONT><BR>
+<FONT FACE="Arial, helvetica, sans-serif" SIZE="3">Because most text files are terminated by a ^Z character (ASCII 26), the ASCII protocol</FONT><BR>
+<FONT FACE="Arial, helvetica, sans-serif" SIZE="3">closes the file and ends the protocol when it finds a ^Z. If the received file isn't terminated by</FONT><BR>
+<FONT FACE="Arial, helvetica, sans-serif" SIZE="3">a ^Z, the ASCII protocol determines the file was completely received after a specified</FONT><BR>
+<FONT FACE="Arial, helvetica, sans-serif" SIZE="3">number of seconds elapse without receiving any new data.&nbsp;</FONT><BR>
+<BR>
+<FONT FACE="Arial, helvetica, sans-serif" SIZE="3">Close Port Timeout</FONT><BR>
+<FONT FACE="Arial, helvetica, sans-serif" SIZE="3">The number of seconds to delay the actual closing of the communication port in use after the ASCII protocol signals&nbsp;</FONT><BR>
+<FONT FACE="Arial, helvetica, sans-serif" SIZE="3">transmission complete ON THE CODESHARK side of the communication stream.&nbsp; Some serial port servers (ie Ethernet to Serial devices) require this&nbsp;</FONT><BR>
+<FONT FACE="Arial, helvetica, sans-serif" SIZE="3">timer to prevent port closer from terminating serial transmission from the actual serial device to the receiving device.</FONT><BR>
+<FONT FACE="Arial, helvetica, sans-serif" SIZE="3">Usually set to 5.&nbsp;</FONT><BR>
+<BR>
+<FONT FACE="Arial, helvetica, sans-serif" SIZE="3">CR Translation / LF Translation</FONT><BR>
+<FONT FACE="Arial, helvetica, sans-serif" SIZE="3">Computer systems sometimes use different character sequences to terminate each line of a</FONT><BR>
+<FONT FACE="Arial, helvetica, sans-serif" SIZE="3">text file. Most PC software stores both a carriage return &lt;CR&gt; and a line feed &lt;LF&gt; at the</FONT><BR>
+<FONT FACE="Arial, helvetica, sans-serif" SIZE="3">end of each line. Other systems store only &lt;LF&gt; or only &lt;CR&gt; at the end of each line.</FONT><BR>
+<FONT FACE="Arial, helvetica, sans-serif" SIZE="3">The ASCII protocol provides a number of options for translating from one end-of-line</FONT><BR>
+<FONT FACE="Arial, helvetica, sans-serif" SIZE="3">sequence to another, both when transmitting and when receiving. When performing these</FONT><BR>
+<FONT FACE="Arial, helvetica, sans-serif" SIZE="3">translations, the &lt;CR&gt; and &lt;LF&gt; characters are treated separately, based on the values</FONT><BR>
+<FONT FACE="Arial, helvetica, sans-serif" SIZE="3">assigned to the CR Translation and LF Translation.</FONT><BR>
+<BR>
+<FONT FACE="Arial, helvetica, sans-serif" SIZE="3">CR translation determines the end-of-line translation mode for carriage returns &lt;CR&gt;, possible selections include:</FONT><BR>
+<FONT FACE="Arial, helvetica, sans-serif" SIZE="3">None:&nbsp; the default, do not modify the character.</FONT><BR>
+<FONT FACE="Arial, helvetica, sans-serif" SIZE="3">Strip:&nbsp; strip the character from the data stream</FONT><BR>
+<FONT FACE="Arial, helvetica, sans-serif" SIZE="3">Add LF after CR:&nbsp; adds a line feed character &lt;LF&gt; after each &lt;CR&gt;.&nbsp;</FONT><BR>
+<FONT FACE="Arial, helvetica, sans-serif" SIZE="3">Add CR before LF: currently treated as None.</FONT><BR>
+<BR>
+<FONT FACE="Arial, helvetica, sans-serif" SIZE="3">LF translation determines the end-of-line translation mode for line feeds &lt;LF&gt;, possible settings include:</FONT><BR>
+<FONT FACE="Arial, helvetica, sans-serif" SIZE="3">None:&nbsp; the default, do not modify the character</FONT><BR>
+<FONT FACE="Arial, helvetica, sans-serif" SIZE="3">Strip:&nbsp; strip the character from the data stream</FONT><BR>
+<FONT FACE="Arial, helvetica, sans-serif" SIZE="3">Add CR before LF:&nbsp; insert a &lt;CR&gt; before each &lt;LF&gt;.&nbsp;</FONT><BR>
+<FONT FACE="Arial, helvetica, sans-serif" SIZE="3">Add LF after CR: treated as None.</FONT><BR>
+<BR>
+<BR>
+<FONT FACE="Arial, helvetica, sans-serif" SIZE="3">* Information displayed here taken from the Async Professional 4 Reference Guide, available from:&nbsp;</FONT><BR>
+<FONT FACE="Arial, helvetica, sans-serif" SIZE="3"><A HREF="hs9005.htm">AysncPro Documentation </A></FONT><BR>
+<BR>
+<BR>
+<FONT FACE="Arial, helvetica, sans-serif" SIZE="3"><A HREF="hs700.htm">CNC</A></FONT><BR>
+<FONT FACE="Arial, helvetica, sans-serif" SIZE="3"><A HREF="hs100.htm">Home</A></FONT><FONT FACE="Arial, helvetica, sans-serif" COLOR="#800000" SIZE="3">
+</FONT>
+</BODY></HTML>

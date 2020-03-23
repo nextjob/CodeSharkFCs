@@ -1,0 +1,59 @@
+<HTML><HEAD>
+	
+	<TITLE>Configure Port</TITLE>
+	<META NAME="VIEWPORT" CONTENT="width=device-width">
+	<META NAME="AUTHOR" CONTENT="">
+	<META NAME="GENERATOR" CONTENT="HelpScribble 8.2.1">
+	<STYLE> span { display: inline-block; }</STYLE>
+</HEAD>
+<BODY BGCOLOR="#FFFFFF" TEXT="#000000" LINK="#0000FF" VLINK="#800080" ALINK="#FF0000">
+<P><FONT FACE="Arial, helvetica, sans-serif" SIZE="2">
+<A HREF="CodeSharkFC.html">Contents</A>
+ - <A HREF="idx.htm">Index</A>
+</FONT><HR></P>
+<FONT FACE="Arial, helvetica, sans-serif" COLOR="#0000FF" SIZE="5"><B>Configure Port</B></FONT><BR>
+<BR>
+<FONT FACE="Arial, helvetica, sans-serif" COLOR="#800000" SIZE="3"><IMG SRC="ConfigPort2.png" WIDTH="624" HEIGHT="429" BORDER="0"></FONT><BR>
+<BR>
+<FONT FACE="Arial, helvetica, sans-serif" SIZE="3">ComPorts is a drop down list of all communication ports found by the windows operating system on the pc.</FONT><BR>
+<FONT FACE="Arial, helvetica, sans-serif" SIZE="3">Select the communication port that is connected to your Machine Tool or Switch Box.</FONT><BR>
+<BR>
+<FONT FACE="Arial, helvetica, sans-serif" SIZE="3">Baud Rates radio buttons select the baud rate used by the port.</FONT><BR>
+<BR>
+<FONT FACE="Arial, helvetica, sans-serif" SIZE="3">Parity radio buttons select the parity checking mode of the port.</FONT><BR>
+<BR>
+<FONT FACE="Arial, helvetica, sans-serif" SIZE="3">Data Bits radio buttons select the number of data bits expected / sent from the port.</FONT><BR>
+<BR>
+<FONT FACE="Arial, helvetica, sans-serif" SIZE="3">Stop Bits radio buttons select the number of stop bits expected / sent from the port.</FONT><BR>
+<BR>
+<FONT FACE="Arial, helvetica, sans-serif" SIZE="3">Flow Control refers to the ability of either end of a communications link to control the rate of data it is receiving.</FONT><BR>
+<FONT FACE="Arial, helvetica, sans-serif" SIZE="3">Flow control is required when CodeShark and the connected CNC Machine Tool have different speeds for handling data internally.</FONT><BR>
+<BR>
+<FONT FACE="Arial, helvetica, sans-serif" SIZE="3">Hardware Flow Control Options:</FONT><BR>
+<BR>
+<FONT FACE="Arial, helvetica, sans-serif" SIZE="3">DTR/DSR: Flow Control uses the "data terminal ready" signal (DTR) / and "data set ready" signal (DSR).</FONT><BR>
+<BR>
+<FONT FACE="Arial, helvetica, sans-serif" SIZE="3">RTS/CTS: Flow Control uses the "request to send" signal (RTS) / and "clear to send" signal (CTS).&nbsp;</FONT><BR>
+<BR>
+<FONT FACE="Arial, helvetica, sans-serif" SIZE="3">Software Flow Control Options:</FONT><BR>
+<BR>
+<FONT FACE="Arial, helvetica, sans-serif" SIZE="3">Software Transmit flow control checked: CodeShark stops transmitting whenever it receives an XOff character from the CNC Machine Tool.</FONT><BR>
+<FONT FACE="Arial, helvetica, sans-serif" SIZE="3">CodeShark will resume transmitting once it receives an XOn character from the CNC Machine Tool.</FONT><BR>
+<BR>
+<FONT FACE="Arial, helvetica, sans-serif" SIZE="3">Software Receive flow control checked: CodeShark sends an XOff character to the CNC Machine Tool when its input buffer reaches a level at which</FONT><BR>
+<FONT FACE="Arial, helvetica, sans-serif" SIZE="3">it cannot process any more incoming data. The CNC Machine Tool must recognize this character and stop sending data after it is received.</FONT><BR>
+<FONT FACE="Arial, helvetica, sans-serif" SIZE="3">Once the input buffer reaches a level at which it can handle more data, the XON character is sent to the CNC Machine Tool.</FONT><BR>
+<BR>
+<FONT FACE="Arial, helvetica, sans-serif" SIZE="3">Xon Char: the ASCII character code for XON normally set to 17.</FONT><BR>
+<BR>
+<FONT FACE="Arial, helvetica, sans-serif" SIZE="3">Xoff Char: the ASCII character code for XOFF normally set to 19.</FONT><BR>
+<BR>
+<FONT FACE="Arial, helvetica, sans-serif" SIZE="3">More information on the above settings can be found in the AsyncPro Reference Guide.&nbsp;</FONT><BR>
+<FONT FACE="Arial, helvetica, sans-serif" SIZE="3"><A HREF="hs9005.htm">AysncPro Documentation </A></FONT><BR>
+<BR>
+<BR>
+<BR>
+<FONT FACE="Arial, helvetica, sans-serif" SIZE="3"><A HREF="hs700.htm">CNC</A></FONT><BR>
+<FONT FACE="Arial, helvetica, sans-serif" SIZE="3"><A HREF="hs100.htm">Home</A></FONT><FONT FACE="Arial, helvetica, sans-serif" COLOR="#800000" SIZE="3">
+</FONT>
+</BODY></HTML>

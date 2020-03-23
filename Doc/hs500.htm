@@ -1,0 +1,67 @@
+<HTML><HEAD>
+	
+	<TITLE>Generate Path</TITLE>
+	<META NAME="VIEWPORT" CONTENT="width=device-width">
+	<META NAME="AUTHOR" CONTENT="">
+	<META NAME="GENERATOR" CONTENT="HelpScribble 8.2.1">
+	<STYLE> span { display: inline-block; }</STYLE>
+</HEAD>
+<BODY BGCOLOR="#FFFFFF" TEXT="#000000" LINK="#0000FF" VLINK="#800080" ALINK="#FF0000">
+<P><FONT FACE="Arial, helvetica, sans-serif" SIZE="2">
+<A HREF="CodeSharkFC.html">Contents</A>
+ - <A HREF="idx.htm">Index</A>
+</FONT><HR></P>
+<FONT FACE="Arial, helvetica, sans-serif" COLOR="#0000FF" SIZE="5"><B>Generate Path</B></FONT><BR>
+<BR>
+<FONT FACE="Arial, helvetica, sans-serif" SIZE="3">CodeSharkFCs uses the PathKurveUtils functions (found in ..\FreeCAD\Mod\Path\PathScripts\PathKurveUtils.py) to generate simple CNC profile paths.</FONT><BR>
+<BR>
+<FONT FACE="Arial, helvetica, sans-serif" SIZE="3">These functions were written by Dan Falck, the Copyright notice is provide below:</FONT><BR>
+<BR>
+<FONT FACE="Courier New, courier, typewriter, monospace" SIZE="3"># ***************************************************************************</FONT><BR>
+<FONT FACE="Courier New, courier, typewriter, monospace" SIZE="3"># *&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; *</FONT><BR>
+<FONT FACE="Courier New, courier, typewriter, monospace" SIZE="3"># *&nbsp;&nbsp; Copyright (c) 2015 Dan Falck &lt;ddfalck@gmail.com&gt;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; *</FONT><BR>
+<FONT FACE="Courier New, courier, typewriter, monospace" SIZE="3"># *&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; *</FONT><BR>
+<FONT FACE="Courier New, courier, typewriter, monospace" SIZE="3"># *&nbsp;&nbsp; This program is free software; you can redistribute it and/or modify&nbsp; *</FONT><BR>
+<FONT FACE="Courier New, courier, typewriter, monospace" SIZE="3"># *&nbsp;&nbsp; it under the terms of the GNU Lesser General Public License (LGPL)&nbsp;&nbsp;&nbsp; *</FONT><BR>
+<FONT FACE="Courier New, courier, typewriter, monospace" SIZE="3"># *&nbsp;&nbsp; as published by the Free Software Foundation; either version 2 of&nbsp;&nbsp;&nbsp;&nbsp; *</FONT><BR>
+<FONT FACE="Courier New, courier, typewriter, monospace" SIZE="3"># *&nbsp;&nbsp; the License, or (at your option) any later version.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; *</FONT><BR>
+<FONT FACE="Courier New, courier, typewriter, monospace" SIZE="3"># *&nbsp;&nbsp; for detail see the LICENCE text file.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; *</FONT><BR>
+<FONT FACE="Courier New, courier, typewriter, monospace" SIZE="3"># *&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; *</FONT><BR>
+<FONT FACE="Courier New, courier, typewriter, monospace" SIZE="3"># *&nbsp;&nbsp; This program is distributed in the hope that it will be useful,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; *</FONT><BR>
+<FONT FACE="Courier New, courier, typewriter, monospace" SIZE="3"># *&nbsp;&nbsp; but WITHOUT ANY WARRANTY; without even the implied warranty of&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; *</FONT><BR>
+<FONT FACE="Courier New, courier, typewriter, monospace" SIZE="3"># *&nbsp;&nbsp; MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.&nbsp; See the&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; *</FONT><BR>
+<FONT FACE="Courier New, courier, typewriter, monospace" SIZE="3"># *&nbsp;&nbsp; GNU Library General Public License for more details.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; *</FONT><BR>
+<FONT FACE="Courier New, courier, typewriter, monospace" SIZE="3"># *&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; *</FONT><BR>
+<FONT FACE="Courier New, courier, typewriter, monospace" SIZE="3"># *&nbsp;&nbsp; You should have received a copy of the GNU Library General Public&nbsp;&nbsp;&nbsp;&nbsp; *</FONT><BR>
+<FONT FACE="Courier New, courier, typewriter, monospace" SIZE="3"># *&nbsp;&nbsp; License along with this program; if not, write to the Free Software&nbsp;&nbsp; *</FONT><BR>
+<FONT FACE="Courier New, courier, typewriter, monospace" SIZE="3"># *&nbsp;&nbsp; Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA&nbsp; 02111-1307&nbsp; *</FONT><BR>
+<FONT FACE="Courier New, courier, typewriter, monospace" SIZE="3"># *&nbsp;&nbsp; USA&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; *</FONT><BR>
+<FONT FACE="Courier New, courier, typewriter, monospace" SIZE="3"># *&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; *</FONT><BR>
+<FONT FACE="Courier New, courier, typewriter, monospace" SIZE="3"># ***************************************************************************</FONT><BR>
+<FONT FACE="Courier New, courier, typewriter, monospace" SIZE="3"># PathKurveUtils - functions needed for using libarea (created by Dan Heeks) for making simple CNC profile paths&nbsp;</FONT><BR>
+<BR>
+<BR>
+<FONT FACE="Arial, helvetica, sans-serif" SIZE="3">To generate a tool path first check the&nbsp; Bypass Selection Import&nbsp; check box .&nbsp; This prevents&nbsp; CodeSharkFCs from writing&nbsp; the coordinates of the selected geometry to the editor window.</FONT><BR>
+<BR>
+<FONT FACE="Arial, helvetica, sans-serif" COLOR="#800000" SIZE="3"><IMG SRC="FCRunFC4.png" WIDTH="588" HEIGHT="739" BORDER="0"></FONT><BR>
+<BR>
+<FONT FACE="Arial, helvetica, sans-serif" SIZE="3">Next set the tool parameters.</FONT><BR>
+<BR>
+<FONT FACE="Arial, helvetica, sans-serif" COLOR="#800000" SIZE="3"><IMG SRC="FCRunFC5.png" WIDTH="592" HEIGHT="739" BORDER="0"></FONT><BR>
+<BR>
+<FONT FACE="Arial, helvetica, sans-serif" SIZE="3">Select the geometric entities that make up the profile.&nbsp; The entities must be connected within the tolerances established in FreeCAD.</FONT><BR>
+<FONT FACE="Arial, helvetica, sans-serif" SIZE="3">The Selected Edge Count will increment with each edge selection</FONT><BR>
+<BR>
+<FONT FACE="Arial, helvetica, sans-serif" COLOR="#800000" SIZE="3"><IMG SRC="FCRunFC5a.png" WIDTH="1765" HEIGHT="909" BORDER="0"></FONT><BR>
+<BR>
+<FONT FACE="Arial, helvetica, sans-serif" SIZE="3">Once the profile has been selected click the Generate Selected Path button.&nbsp; The CNC profile path is created and written to the editor window.</FONT><BR>
+<BR>
+<FONT FACE="Arial, helvetica, sans-serif" COLOR="#800000" SIZE="3"><IMG SRC="FCRunFC6.png" WIDTH="1769" HEIGHT="919" BORDER="0"></FONT><BR>
+<BR>
+<FONT FACE="Arial, helvetica, sans-serif" SIZE="3"> TBC</FONT><BR>
+<FONT FACE="Arial, helvetica, sans-serif" SIZE="3">- Create some sort of post processor mechanism</FONT><BR>
+<FONT FACE="Arial, helvetica, sans-serif" SIZE="3">- Display Path&nbsp;&nbsp;&nbsp;</FONT><BR>
+<BR>
+<FONT FACE="Arial, helvetica, sans-serif" SIZE="3"><A HREF="hs100.htm">Home</A></FONT><BR>
+
+</BODY></HTML>

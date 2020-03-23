@@ -30,10 +30,13 @@ type
     OKButton: TButton;
     ScrollBox1: TScrollBox;
     Aboutlbl: TLabel;
+    Labelurl: TLabel;
+    Label1: TLabel;
     procedure FormActivate(Sender: TObject);
 //    procedure LabelurlClick(Sender: TObject);
     procedure FormShow(Sender: TObject);
     procedure OKButtonClick(Sender: TObject);
+    procedure LabelurlClick(Sender: TObject);
   private
     { Private declarations }
   public
@@ -105,6 +108,11 @@ begin
   Self.caption := 'About';
   ProductName.caption := 'Product Name : CodeSharkFCs';
   Version.caption := 'Version: ' + CurVersion;
+end;
+
+procedure TAboutBox.LabelurlClick(Sender: TObject);
+begin
+  ShellExecute(Self.Handle, nil, PChar(Labelurl.caption), nil, nil, SW_SHOW);
 end;
 
 end.
