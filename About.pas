@@ -45,6 +45,7 @@ type
 
 var
   AboutBox: TAboutBox;
+  AppDir : String;
 
 implementation
 
@@ -108,11 +109,16 @@ begin
   Self.caption := 'About';
   ProductName.caption := 'Product Name : CodeSharkFCs';
   Version.caption := 'Version: ' + CurVersion;
-end;
+  AppDir := ExtractFilePath(Application.ExeName);
+  Labelurl.caption := AppDir + 'Doc\CodeSharkFC.html';
+ end;
 
 procedure TAboutBox.LabelurlClick(Sender: TObject);
 begin
-  ShellExecute(Self.Handle, nil, PChar(Labelurl.caption), nil, nil, SW_SHOW);
+  if FileExists(Labelurl.caption) then
+    ShellExecute(Self.Handle, nil, PChar(Labelurl.caption), nil, nil, SW_SHOW)
+  else
+    ShowMessage('Doc Directory not found, download from https://github.com/nextjob/CodeSharkFCs');
 end;
 
 end.
