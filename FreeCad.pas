@@ -142,6 +142,10 @@ type
   { TFreeCadFrm }
 
   TFreeCadFrm = class(TForm)
+{$IFDEF FPC}
+    Label5: TLabel;
+    Label6: TLabel;
+{$ENDIF}
     PythonEngine1: TPythonEngine;
     ExeMemo: TMemo;
     PyOutMemo: TMemo;
@@ -834,7 +838,7 @@ var
 Begin
   ScriptLns.Clear;
   ExeMemo.Lines.Clear;
-  scriptFn := FrmMain.AppDataPath + '\' + StartupScript;
+  scriptFn := FrmMain.AppDataPath + PathDelim + StartupScript;
   // if custom script file exists and load custom specified
   if SetFCparmsFrm.cbCustStart.Checked and FileExists(scriptFn) then
   begin
@@ -847,6 +851,13 @@ Begin
     // else load default
     Label2.Caption := 'Default Startup Script';
     ScriptLns.Add('import sys, os, fnmatch');
+
+// paths needing to be set differ between Linux and Windows version
+// setup here
+
+{$IFDEF LINUX}
+    ScriptLns.Add('sys.path.append(''' +SetFCparmsFrm.PythonHome.Text''')');
+{$ELSE}
     PyPath := EnsurePathHasDoubleSlashes(SetFCparmsFrm.PythonHome.Text);
     ScriptLns.Add('sys.path.append(''' + PyPath + ''')');
     PyPath := EnsurePathHasDoubleSlashes(SetFCparmsFrm.PythonHome.Text);
@@ -857,6 +868,8 @@ Begin
     ScriptLns.Add('sys.path.append(''' + PyPath + '\\Drawing'')');
     PyPath := EnsurePathHasDoubleSlashes(ExtractFileDir(ParamStr(0)));
     ScriptLns.Add('sys.path.append(''' + PyPath + ''')');
+{$ENDIF}
+
     // we expect to find  PathKurveUtils & PathSelection in CodeSharkFC exe
     // // directory, as of FC.17 it is no longer part of  Path (PathScripts)
     ScriptLns.Add('import FreeCADGui,FreeCAD');
@@ -925,7 +938,7 @@ var
 Begin
   ScriptLns.Clear;
   ExeMemo.Lines.Clear;
-  scriptFn := FrmMain.AppDataPath + '\' + PanelViewScript;
+  scriptFn := FrmMain.AppDataPath + PathDelim + PanelViewScript;
   // if custom script file exists and load custom specified
   if SetFCparmsFrm.cbCustPanel.Checked and FileExists(scriptFn) then
   begin
@@ -995,7 +1008,7 @@ var
 Begin
   ScriptLns.Clear;
   ExeMemo.Lines.Clear;
-  scriptFn := FrmMain.AppDataPath + '\' + ObserverScript;
+  scriptFn := FrmMain.AppDataPath + PathDelim + ObserverScript;
   // if custom script file exists and load custom specified
   if SetFCparmsFrm.cbCustSelectObs.Checked and FileExists(scriptFn) then
   begin
@@ -1139,7 +1152,7 @@ var
 Begin
   ScriptLns.Clear;
   ExeMemo.Lines.Clear;
-  scriptFn := FrmMain.AppDataPath + '\' + ShutdownScript;
+  scriptFn := FrmMain.AppDataPath + PathDelim + ShutdownScript;
   // if custom script file exists and load custom specified
   if SetFCparmsFrm.cbCustShutdown.Checked and FileExists(scriptFn) then
   begin
@@ -1204,13 +1217,16 @@ begin
       + CrLf;
     MessageDlg(MsgText, mtWarning, [mbOK], 0);
   End;
-  //
+
+{$IFDEF MSWINDOWS}
+  //    -- windows only problem ? --
   // Note (or warn) for QT bug, "/platforms" directory must be local to codeshark exe, look for it
   // 01/22/2020 this looks like it has been fixed, do not warn
   // 02/18/2020 when using  FreeCAD_0.19.19635_x64_Conda_Py3QT5-WinVS2015   it is back again!
-  if not DirectoryExists(ExtractFilePath(ParamStr(0)) + '\platforms') then
+  if not DirectoryExists(ExtractFilePath(ParamStr(0)) + PathDelim + 'platforms') then
     ShowMessage
       ('Warning ... Due to QT5 issue, "platforms" directory must be copied from FreeCad ../bin/platforms to directory containing CodeSharkFC exe file, it was not found.');
+{$ENDIF}
   //
   FrmMain.Cursor := crHourGlass;
   FrmMain.StatusBar.Panels[0].Text := 'Script Statup';

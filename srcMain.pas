@@ -57,14 +57,14 @@ interface
 
 uses
   Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants,
-  System.Classes, Vcl.Graphics, IOUtils, IniFiles,
+  System.Classes, Vcl.Graphics, System.IOUtils, IniFiles,
   Vcl.Controls, Vcl.Forms, Vcl.Dialogs, SynEdit, Vcl.Menus, Vcl.StdActns,
   Vcl.ActnList, System.Actions, Vcl.ActnPopup, Vcl.ToolWin, Vcl.ActnMan,
   Vcl.ActnCtrls, Vcl.ActnMenus, Vcl.PlatformDefaultStyleActnCtrls, SynEditPrint,
   System.ImageList,
   Vcl.ImgList, Vcl.ComCtrls, SynEditSearch, SynEditMiscClasses,
   SynEditRegexSearch, Vcl.ExtCtrls, AdPacket, AdProtcl, AdPStat, OoMisc, AdPort,
-  AwtPcl;
+  AwtPcl, AdSelCom;
 
 type
   TFrmMain = class(TForm)
@@ -235,10 +235,10 @@ var
 
 const
   MyAppName = 'CodeSharkFCs';
-  AppDataName = '\' + MyAppName;
-  IniFileName = '\CodeSharkFCs.ini';
+  AppDataName = PathDelim + MyAppName;
+  IniFileName = PathDelim + 'CodeSharkFCs.ini';
 
-  CurVersion = '0.0';
+  CurVersion = '0.01';
   // custom script files found in AppData (C:\Users\**username**\AppData\Local\CodeSharkFC)
   StartupScript = 'StartupScript.py';
   PanelViewScript = 'PanelViewScript.py';
@@ -275,87 +275,6 @@ uses
   SynEditTypes, SynEditMiscProcs;
 // SynEditTextBuffer,
 // SynEditKeyCmds;
-
-function ShGetFolderPath(hWndOwner: HWND; csidl: Integer; hToken: THandle;
-  dwReserved: DWord; lpszPath: PChar): HResult; stdcall;
-  external 'ShFolder.dll' name 'SHGetFolderPathW';
-
-function GetAppDataPath: string;
-var
-  DataPath: array [0 .. MAX_PATH] of CHAR;
-  success: Boolean;
-begin
-  success := ShGetFolderPath(0, CSIDL_LOCAL_APPDATA or
-    $8000 { CSIDL_FLAG_CREATE } , 0, { SHGFP_TYPE_CURRENT } 0, DataPath) = S_OK;
-  if success then
-    Result := DataPath
-  else
-    Result := NOF;
-end;
-
-Function GetWindowsDir: TFileName;
-Var
-  WinDir: Array [0 .. MAX_PATH - 1] Of CHAR;
-Begin
-  SetString(Result, WinDir, GetWindowsDirectory(WinDir, MAX_PATH));
-  If Result = '' Then
-  Begin
-    Raise Exception.Create(SysErrorMessage(GetLastError))
-  End;
-End;
-
-Function GetTempDir: TFileName;
-// The following function returns the location of the temporary directory and attempts to create it if it doesn't exist.
-Var
-  TmpDir: Array [0 .. MAX_PATH - 1] Of CHAR;
-Begin
-  Try
-    SetString(Result, TmpDir, GetTempPath(MAX_PATH, TmpDir));
-    If NOT DirectoryExists(Result) Then
-    Begin
-      If NOT CreateDirectory(PChar(Result), NIL) Then
-      Begin
-        Result := IncludeTrailingBackSlash(GetWindowsDir) + 'TEMP';
-        If NOT DirectoryExists(Result) Then
-        Begin
-          If NOT CreateDirectory(pointer(Result), NIL) Then
-          Begin
-            Result := ExtractFileDrive(Result) + '\TEMP';
-            If NOT DirectoryExists(Result) Then
-            Begin
-              If NOT CreateDirectory(pointer(Result), NIL) Then
-              Begin
-                Result := ExtractFileDrive(Result) + '\TMP';
-                If NOT DirectoryExists(Result) Then
-                Begin
-                  If NOT CreateDirectory(pointer(Result), NIL) Then
-                  Begin
-                    Raise Exception.Create(SysErrorMessage(GetLastError));
-                  End
-                End;
-              End
-            End;
-          End
-        End;
-      End
-    End;
-  Except
-    Result := '';
-    Raise;
-  End;
-End;
-
-Function CreateTempFile: TFileName;
-// Creates a temporal file and returns its path name
-Var
-  TempFileName: Array [0 .. MAX_PATH - 1] Of CHAR;
-Begin
-  If GetTempFileName(PChar(GetTempDir), '~', 0, TempFileName) = 0 Then
-  Begin
-    Raise Exception.Create(SysErrorMessage(GetLastError))
-  End;
-  Result := TempFileName;
-End;
 
 Function TFrmMain.ParityChar: CHAR;
 Begin
@@ -414,19 +333,7 @@ Begin
 End;
 
 procedure TFrmMain.ShowFileName;
-var
-  s: string;
 begin
-  {
-    s := 'BlkBgn ch / ln: ' + inttoStr(SynEdit.BlockBegin.Char) + ' / ' +
-    inttoStr(SynEdit.BlockBegin.Line);
-    s := s + ' BlkEnd ch / ln: ' + inttoStr(SynEdit.BlockEnd.Char) + ' / ' +
-    inttoStr(SynEdit.BlockEnd.Line);
-    s := s + ' CaretXY  ch / ln: ' + inttoStr(SynEdit.CaretXY.Char) + ' / ' +
-    inttoStr(SynEdit.CaretXY.Line);
-    s := s + ' Text: ' + SynEdit.GetWordAtRowCol(SynEdit.BlockBegin);
-    Statusbar.SimpleText := s;
-  }
   FrmMain.Caption := EditFileNameWithPath + ' - ' + MyAppName;
 end;
 
@@ -470,7 +377,7 @@ begin
 
   If FrmSettings.FilterOnOpenCB.Checked Then
   Begin
-    TmpFl := CreateTempFile;
+    TmpFl := TPath.GetTempFileName;
     If NOT CopyFile(PChar(EditFileNameWithPath), PChar(TmpFl), FALSE) Then
     Begin
       ShowMessage('File Open - Copy Read only Failed - ' +
@@ -617,7 +524,7 @@ procedure TFrmMain.FormCreate(Sender: TObject);
 begin
 
   // get the location of the ini file
-  AppDataPath := GetAppDataPath;
+  AppDataPath := TPath.GetCachePath;
 
   if AppDataPath = NOF then
   Begin
@@ -857,7 +764,7 @@ Begin
   End;
   //
   // Create a temp file and write the current editor text to it
-  TmpScrFl := CreateTempFile;
+  TmpScrFl := TPath.GetTempFileName;
   SynEdit.Lines.SaveToFile(TmpScrFl);
   //
 
@@ -899,10 +806,11 @@ Begin
   FrmSendRecvDlg.Memo1.Visible := True;
   FrmSendRecvDlg.btnSendRecv.Caption := 'Send File';
   If FrmSendRecvDlg.ShowModal = mrOk then
+
   Begin
-    If ApdComPort1.ComNumber = 0 Then
+    If Not(IsPortAvailable(FrmMain.ApdComPort1.ComNumber)) then
     Begin
-      ShowMessage('No Com Port Selected');
+      ShowMessage('Set Com Port: ' + IntToStr(ApdComPort1.ComNumber) + ' Not Valid');
       DeleteFile(FileToSend);
       exit;
     End;
@@ -979,7 +887,7 @@ Begin
       exit;
     End;
     // Create a temp file and write the current editor text to it
-    TmpSendFile := CreateTempFile;
+    TmpSendFile := TPath.GetTempFileName;
     //
     // Did we get a file?
     if Not FileExists(TmpSendFile) then
@@ -1144,9 +1052,9 @@ Begin
     FrmSendRecvDlg.btnSendRecv.Caption := 'Receive File';
     If FrmSendRecvDlg.ShowModal = mrOk then
     Begin
-      If ApdComPort1.ComNumber = 0 Then
+      If Not(IsPortAvailable(FrmMain.ApdComPort1.ComNumber)) then
       Begin
-        ShowMessage('No Com Port Selected');
+        ShowMessage('Set Com Port: ' + IntToStr(ApdComPort1.ComNumber) + ' Not Valid');
         exit;
       End;
     End
@@ -1398,8 +1306,8 @@ Begin
 
   // create temp file names
 
-  TmpFl := CreateTempFile;
-  TmpFl2 := CreateTempFile;
+  TmpFl := TPath.GetTempFileName;
+  TmpFl2 := TPath.GetTempFileName;
 
   If NOT CopyFile(PChar(FileToFilter), PChar(TmpFl), FALSE) Then
   Begin

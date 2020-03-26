@@ -1,0 +1,6 @@
+Revision History
+.01	srcMain.pas
+	Remove local functions find ..\AppData\Local and create temp files
+	Replace with TPath.GetCachePath, TPath.GetTempFileName
+	FreeCAD.pas
+	Mods to compile with Lazarus on Linux
