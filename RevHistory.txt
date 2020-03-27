@@ -4,3 +4,6 @@ Revision History
 	Replace with TPath.GetCachePath, TPath.GetTempFileName
 	FreeCAD.pas
 	Mods to compile with Lazarus on Linux
+.02
+	FreeCAD.pas
+	Include process PID in window title

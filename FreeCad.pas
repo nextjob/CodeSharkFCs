@@ -172,6 +172,7 @@ type
     procedure btnExeFCClick(Sender: TObject);
     procedure PythonModule1Initialization(Sender: TObject);
     procedure LoadStartupScript;
+    procedure LoadWindowScript;
     procedure LoadPanelViewScript;
     procedure LoadObserverScript;
     procedure LoadShutdownScript;
@@ -245,13 +246,14 @@ Const
   OtherData = 'otherdata';
   Unknown = 'unknown';
   //
-  FreeCADScreenName = 'FreeCAD(CSFC)';
+  cFreeCADScreenName = 'FreeCAD(CSFC'; //Name we will assign to FreeCAD window in LoadWindowScript
 
 var
-  StarupLoaded, PanelViewLoaded, ObserverLoaded: Boolean;
+  StartupLoaded, PanelViewLoaded, ObserverLoaded: Boolean;
   ScriptLns: TStringList;
   LastX, LastY, LastZ: String; // last point processed
   FreeCADPid: Integer; // PID of FreeCAD process, returned by  startup script
+  FreeCADScreenName : String;  //Name we will assign to FreeCAD window in LoadWindowScript
   FreeCADFound: Boolean;
 
 function EnumWinProc(wHandle: hWnd; lparam: Integer): Bool; stdcall;
@@ -764,28 +766,31 @@ procedure TFreeCadFrm.FormClose(Sender: TObject; var Action: TCloseAction);
 Var
   MsgText: String;
 begin
+  if StartupLoaded then
+  begin
   // see if we still have a FreeCAD window (user did not close)
-  DoEnumWindows;
-  if StarupLoaded and FreeCADFound then
-  Begin
-    LoadShutdownScript;
-    PythonEngine1.Finalize;
-  End
-  else
-  //
-  Begin
-    MsgText := 'The ' + FreeCADScreenName + ' Window Cannot Be Found.' + CrLf;
-    MsgText := MsgText +
-      'We Cannot Cleanly Unload The Interface To FreeCAD.' + CrLf;
-    MsgText := MsgText +
-      'THIS WILL MOST LIKELY RESULT IN AN APPLICATION ERROR WHEN THE PROGRAM IS CLOSED!'
-      + CrLf;
-    MsgText := MsgText + 'PLEASE SAVE YOUR WORK NOW!' + CrLf;
-    MsgText := MsgText +
-      'In The Future, Please Close FreeCAD  By Closing The CodeShark/FreeCAD Interface Dialog';
-    MessageDlg(MsgText, mtWarning, [mbOK], 0);
-  End;
+    DoEnumWindows;
+    if FreeCADFound then
+    Begin
+      LoadShutdownScript;
+      PythonEngine1.Finalize;
+    End
 
+    else
+  //
+    Begin
+      MsgText := 'The ' + FreeCADScreenName + ' Window Cannot Be Found.' + CrLf;
+      MsgText := MsgText +
+        'We Cannot Cleanly Unload The Interface To FreeCAD.' + CrLf;
+      MsgText := MsgText +
+      'THIS WILL MOST LIKELY RESULT IN AN APPLICATION ERROR WHEN THE PROGRAM IS CLOSED!'
+        + CrLf;
+      MsgText := MsgText + 'PLEASE SAVE YOUR WORK NOW!' + CrLf;
+      MsgText := MsgText +
+        'In The Future, Please Close FreeCAD  By Closing The CodeShark/FreeCAD Interface Dialog';
+      MessageDlg(MsgText, mtWarning, [mbOK], 0);
+    End
+  End;
   ScriptLns.Free;
 end;
 
@@ -794,9 +799,10 @@ Var
   MyPyDllPath: String;
 begin
   ScriptLns := TStringList.Create;
-  StarupLoaded := False;
+  StartupLoaded := False;
   ObserverLoaded := False;
   FreeCADFound := False;
+  FreeCADPid := -1;
   LastX := '';
   LastY := '';
   LastZ := ''; // init last point position
@@ -891,18 +897,11 @@ Begin
 
     // finally fire up FreeCAD
     ScriptLns.Add('FreeCADGui.showMainWindow()');
-    ScriptLns.Add('MyMw=FreeCADGui.getMainWindow()');
-    ScriptLns.Add('MyMw.setWindowTitle("' + FreeCADScreenName + '")');
-    // change the window flags to not include the close X on the main window
-    ScriptLns.Add
-      ('flags = QtCore.Qt.WindowMinimizeButtonHint | QtCore.Qt.WindowMaximizeButtonHint | QtCore.Qt.CustomizeWindowHint');
-    ScriptLns.Add('MyMw.setWindowFlags(flags)');
-    ScriptLns.Add('MyMw.show()');
-    //
-    ScriptLns.Add('EdgeCnt.Value = 0');
     // and save the process id of FreeCAD
     ScriptLns.Add('MyPid = os.getpid()');
     ScriptLns.Add('CaptureFC.WrtArgs(''otherdata'',''PID'',MyPid)');
+    //
+    ScriptLns.Add('EdgeCnt.Value = 0');
 
     ExeMemo.Lines.Assign(ScriptLns);
   end;
@@ -918,7 +917,7 @@ Begin
   try
     MaskFPUExceptions(True);
     PythonEngine1.ExecStrings(ExeMemo.Lines);
-    StarupLoaded := True;
+    StartupLoaded := True;
     PyOutMemo.Lines.Add('Startup Script Executed');
   Except
     on E: Exception do
@@ -930,6 +929,45 @@ Begin
   end;
 
 End;
+
+procedure TFreeCadFrm.LoadWindowScript;
+var
+  scriptFn: String;
+
+Begin
+  //Include in  FreeCAD window name the PID we are running as
+  FreeCADScreenName := cFreeCADScreenName + IntToStr(FreeCADPid) + ')';
+  ScriptLns.Clear;
+  ExeMemo.Lines.Clear;
+
+  Label2.Caption := 'Window Setting Script Script';
+  ScriptLns.Add('mainWindow = FreeCADGui.getMainWindow()');
+  // now mod the window to include pid in window title
+  ScriptLns.Add('mainWindow.setWindowTitle("' + FreeCADScreenName + '")');
+  // change the window flags to not include the close X on the main window
+  ScriptLns.Add
+      ('flags = QtCore.Qt.WindowMinimizeButtonHint | QtCore.Qt.WindowMaximizeButtonHint | QtCore.Qt.CustomizeWindowHint');
+  ScriptLns.Add('mainWindow.setWindowFlags(flags)');
+  ScriptLns.Add('mainWindow.show()');
+
+  ExeMemo.Lines.Assign(ScriptLns);
+  // execute the script
+
+  try
+    MaskFPUExceptions(True);
+    PythonEngine1.ExecStrings(ExeMemo.Lines);
+    PanelViewLoaded := True;
+    PyOutMemo.Lines.Add('Window Setting Script Executed');
+  Except
+    on E: Exception do
+    begin
+      ShowMessage('Exception On Window Setting Script, class name = ' + E.ClassName
+        + CrLf + 'Exception message = ' + E.Message);
+    end;
+
+  end;
+End;
+
 
 procedure TFreeCadFrm.LoadPanelViewScript;
 var
@@ -951,6 +989,7 @@ Begin
     // else load default
     Label2.Caption := 'Default Panel View Script';
     ScriptLns.Add('mainWindow = FreeCADGui.getMainWindow()');
+    // set the panels we want visible
     ScriptLns.Add('dockWidgets = mainWindow.findChildren(QtGui.QDockWidget)');
     ScriptLns.Add('for dw in dockWidgets:');
     ScriptLns.Add('  if dw.objectName() == "Tree view":');
@@ -1233,6 +1272,7 @@ begin
   FrmMain.Refresh;
   Try
     LoadStartupScript;
+    LoadWindowScript;
     LoadPanelViewScript;
     LoadObserverScript;
   Finally

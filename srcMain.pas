@@ -238,7 +238,7 @@ const
   AppDataName = PathDelim + MyAppName;
   IniFileName = PathDelim + 'CodeSharkFCs.ini';
 
-  CurVersion = '0.01';
+  CurVersion = '0.02';
   // custom script files found in AppData (C:\Users\**username**\AppData\Local\CodeSharkFC)
   StartupScript = 'StartupScript.py';
   PanelViewScript = 'PanelViewScript.py';
@@ -273,8 +273,6 @@ uses
   cmset, ptops, Settings, AsciistatusU, SendRecvDlg,
   dlgSearchText, dlgReplaceText, dlgConfirmReplace, plgSearchHighlighter,
   SynEditTypes, SynEditMiscProcs;
-// SynEditTextBuffer,
-// SynEditKeyCmds;
 
 Function TFrmMain.ParityChar: CHAR;
 Begin
@@ -517,12 +515,12 @@ begin
     // Except
     // ShowMessage('error updating ' + AppDataPath + IniFileName);
   end;
+
 end;
 
 procedure TFrmMain.FormCreate(Sender: TObject);
 
 begin
-
   // get the location of the ini file
   AppDataPath := TPath.GetCachePath;
 
