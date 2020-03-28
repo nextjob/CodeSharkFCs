@@ -32,7 +32,7 @@ type
     cbCustStart: TCheckBox;
     cbCustPanel: TCheckBox;
     cbCustSelectObs: TCheckBox;
-    cbCustShutdown: TCheckBox;
+    cbCustWindowAction: TCheckBox;
     cbOverWriteScript: TCheckBox;
     cbFreeCADWarnDisable: TCheckBox;
     Label1: TLabel;
@@ -105,7 +105,7 @@ begin
 
   // read in the ini file
   Try
-    Inif := TMemIniFile.Create(FrmMain.AppDataPath + '\' + srcMain.IniFileName);
+    Inif := TMemIniFile.Create(FrmMain.AppDataPath + PathDelim + srcMain.IniFileName);
     PythonHome.Text := Inif.ReadString(PathSection, 'PythonHome', '');
     // PyDllPath.Text := Inif.ReadString(PathSection, 'PythonDllPath', '');
     PyDllName.Text := Inif.ReadString(PathSection, 'PythonDllName', '');
@@ -120,8 +120,8 @@ begin
       'Custom_View_Panel_Script', cbCustPanel.Checked);
     cbCustSelectObs.Checked := Inif.ReadBool(ScriptsSection,
       'Custom_Selection_Observer_Script', cbCustSelectObs.Checked);
-    cbCustShutdown.Checked := Inif.ReadBool(ScriptsSection,
-      'Custom_Shutdown_Script', cbCustShutdown.Checked);
+    cbCustWindowAction.Checked := Inif.ReadBool(ScriptsSection,
+      'Custom_Window_Actions_Script', cbCustWindowAction.Checked);
     cbOverWriteScript.Checked := Inif.ReadBool(ScriptsSection,
       'Overwrite_Custom_Scripts', cbOverWriteScript.Checked);
 
@@ -144,7 +144,7 @@ var
 
 begin
   Try
-    Inif := TMemIniFile.Create(FrmMain.AppDataPath + '\' + srcMain.IniFileName);
+    Inif := TMemIniFile.Create(FrmMain.AppDataPath + PathDelim + srcMain.IniFileName);
 
     if (Length(PythonHome.Text) > 0) and (TDirectory.Exists(PythonHome.Text))
     then
@@ -158,10 +158,10 @@ begin
       showMessage('Python Dll Path not set, ' + PyDllPath.Text + ' not found');
     }
     if (Length(PyDllName.Text) > 0) and
-      (FileExists(PythonHome.Text + '\' + PyDllName.Text)) then
+      (FileExists(PythonHome.Text + PathDelim + PyDllName.Text)) then
       Inif.WriteString(PathSection, 'PythonDllName', PyDllName.Text)
     else
-      showMessage('Python Dll Name not set, ' + PythonHome.Text + '\' +
+      showMessage('Python Dll Name not set, ' + PythonHome.Text + PathDelim +
         PyDllName.Text + ' not found');
 
     if (Length(PyRegVersion) > 0) then
@@ -189,8 +189,8 @@ begin
       cbCustPanel.Checked);
     Inif.WriteBool(ScriptsSection, 'Custom_Selection_Observer_Script',
       cbCustSelectObs.Checked);
-    Inif.WriteBool(ScriptsSection, 'Custom_Shutdown_Script',
-      cbCustShutdown.Checked);
+    Inif.WriteBool(ScriptsSection, 'Custom_Window_Actions_Script',
+      cbCustWindowAction.Checked);
     Inif.WriteBool(ScriptsSection, 'Overwrite_Custom_Scripts',
       cbOverWriteScript.Checked);
 

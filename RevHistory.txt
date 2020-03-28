@@ -7,3 +7,26 @@ Revision History
 .02
 	FreeCAD.pas
 	Include process PID in window title
+.03
+	SrcMain.pas & FreeCad.pas & SetFCparms.pas
+	Change the way FreeCAD application window is controlled.
+	Now when we
+	  1st click of the "Run FreeCAD" menu item from the CodeSharkFC window
+		- create instance of FreeCAD Interface Dialog and show it
+	  Click "Run FreeCAD" button from FreeCAD Interface Dialog
+	  	- Start the FreeCAD application via an instance of Python4Delphi
+		- disable the "Run FreeCAD" button on the FreeCAD Interface Dialog
+	  Close the FreeCAD Interface Dialog
+		 - Hide the FreeCAD application window
+	  2nd and on click of the "Run FreeCAD" menu item from the CodeSharkFC window
+		if FreeCAD application stated
+			- show the FreeCAD Interface Dialog & FreeCAD application window
+		if FreeCAD application not stated
+			- show the FreeCAD Interface Dialog
+			- "Run FreeCAD" button on FreeCAD Interface Dialog is Enabled and
+				user can start FreeCAD
+	  Close CodeSharkFC window
+		if FreeCAD application stated
+			- close FreeCAD application
+		destroy instance of FreeCAD Interface Dialog (and instance of Python4Delphi)
+ 

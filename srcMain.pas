@@ -238,12 +238,7 @@ const
   AppDataName = PathDelim + MyAppName;
   IniFileName = PathDelim + 'CodeSharkFCs.ini';
 
-  CurVersion = '0.02';
-  // custom script files found in AppData (C:\Users\**username**\AppData\Local\CodeSharkFC)
-  StartupScript = 'StartupScript.py';
-  PanelViewScript = 'PanelViewScript.py';
-  ObserverScript = 'ObserverScript.py';
-  ShutdownScript = 'ShutdownScript.py';
+  CurVersion = '0.03';
 
   ApdModeFree = 0; // Not send or recieve in process
   ApdModeSend = 1; // send in process
@@ -273,6 +268,9 @@ uses
   cmset, ptops, Settings, AsciistatusU, SendRecvDlg,
   dlgSearchText, dlgReplaceText, dlgConfirmReplace, plgSearchHighlighter,
   SynEditTypes, SynEditMiscProcs;
+
+Var
+  MyFreeCADFrm : TFreeCadFrm;
 
 Function TFrmMain.ParityChar: CHAR;
 Begin
@@ -550,6 +548,8 @@ begin
   begin
     Attribute.Background := $0078AAFF;
   end;
+
+  MyFreeCADFrm := nil;
 
 end;
 
@@ -1552,25 +1552,33 @@ End;
 
 procedure TFrmMain.FreeCADClick(Sender: TObject);
 begin
-  SetFCparmsFrm.LoadIni; // make sure we have the setup info loaded for python
-  // Rem     Modeless forms. Use "Application" as the owner:
-  // var
-  // myForm : TMyForm;
-  // ...       myForm := TMyForm.Create(Application) ;
-  // Now, when you terminate (exit) the application, the "Application" object will free the "myForm" instance.
-  //
+{
+    From  https://www.thoughtco.com/tform-createaowner-aowner-1057563
+    When you create Delphi objects dynamically that inherit from TControl, such as a TForm (representing
+     a form/window in Delphi applications), the constructor "Create" expects an "Owner" parameter:
+    Modeless forms. Use "Application" as the owner:
+    var
+    myForm : TMyForm;
+    ...
+    myForm := TMyForm.Create(Application) ;
 
-  // For now do not let user resart FreeCAD we need to figure out how to reinitialize the python engine and python and freeCAD
-  FrmMain.FreeCADExecute.Enabled := FALSE;
+    Now, when you terminate (exit) the application,
+    the "Application" object will free the "myForm" instance.
 
-  With TFreeCadFrm.Create(Application) Do
+}
+  if MyFreeCADFrm = nil then
   Begin
-    // Try
-    Show;
-    // Finally
-    // Free;
-    // End
-  End;
+    SetFCparmsFrm.LoadIni; // make sure we have the setup info loaded for python
+    MyFreeCADFrm :=TFreeCadFrm.Create(Application);
+    try
+     MyFreeCADFrm.Show;
+    Except
+    on E : Exception do
+      ShowMessage(E.ClassName+' error raised on MyFreeCAD form creation, with message : '+E.Message);
+    end;
+  End
+  else
+    MyFreeCADFrm.Show;
 end;
 
 procedure TFrmMain.FreeCADSettings1Click(Sender: TObject);

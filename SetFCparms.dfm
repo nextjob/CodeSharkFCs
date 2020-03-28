@@ -69,12 +69,12 @@ object SetFCparmsFrm: TSetFCparmsFrm
     Caption = 'Custom Selection Observer Script'
     TabOrder = 4
   end
-  object cbCustShutdown: TCheckBox
+  object cbCustWindowAction: TCheckBox
     Left = 8
     Top = 210
     Width = 185
     Height = 17
-    Caption = 'Custom Shutdown Script'
+    Caption = 'Custom Window Action Script'
     TabOrder = 5
   end
   object cbOverWriteScript: TCheckBox

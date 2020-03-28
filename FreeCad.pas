@@ -175,11 +175,13 @@ type
     procedure LoadWindowScript;
     procedure LoadPanelViewScript;
     procedure LoadObserverScript;
-    procedure LoadShutdownScript;
+    procedure LoadWindowActionScript(Action : Integer);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure FormCreate(Sender: TObject);
     procedure btnGenPathClick(Sender: TObject);
     procedure btnSetToolClick(Sender: TObject);
+    procedure FormDestroy(Sender: TObject);
+    procedure FormShow(Sender: TObject);
 
   private
     function WrtArgsToEditor(pself, args: PPyObject): PPyObject; cdecl;
@@ -245,8 +247,19 @@ Const
   User3 = 'user3';
   OtherData = 'otherdata';
   Unknown = 'unknown';
+  // custom script files found in AppData (C:\Users\**username**\AppData\Local\CodeSharkFC)
+  StartupScript = 'StartupScript.py';
+  PanelViewScript = 'PanelViewScript.py';
+  ObserverScript = 'ObserverScript.py';
+  WindowCloseScript = 'WindowCloseScript.py';
+  WindowHideScript = 'WindowHideScript.py';
+  WindowShowScript = 'WindowShowScript.py';
   //
   cFreeCADScreenName = 'FreeCAD(CSFC'; //Name we will assign to FreeCAD window in LoadWindowScript
+  // LoadWindowActionScript actions
+  WindowShow = 0;
+  WindowHide = 1;
+  WindowClose = 2;
 
 var
   StartupLoaded, PanelViewLoaded, ObserverLoaded: Boolean;
@@ -264,12 +277,14 @@ var
   IsAppMainWin: Boolean;
   ProcId: cardinal;
 begin
-  // Check if the window is a visible application main window.
-  IsAppMainWin := IsWindowVisible(wHandle) AND // Visible
+  // Check if the window is a application main window.
+
+  IsAppMainWin :=
     (GetWindow(wHandle, GW_OWNER) = 0) AND // Not owned by other windows
     (GetParent(wHandle) = 0) AND // Does not have any parent
-    (GetWindowLong(wHandle, GWL_EXSTYLE) AND WS_EX_TOOLWINDOW = 0);
-  // Not a tool window
+    (GetWindowLong(wHandle, GWL_EXSTYLE) AND WS_EX_TOOLWINDOW = 0);  // Not a tool window
+
+
 
   if IsAppMainWin then
   begin
@@ -766,32 +781,9 @@ procedure TFreeCadFrm.FormClose(Sender: TObject; var Action: TCloseAction);
 Var
   MsgText: String;
 begin
+  Action := caHide;
   if StartupLoaded then
-  begin
-  // see if we still have a FreeCAD window (user did not close)
-    DoEnumWindows;
-    if FreeCADFound then
-    Begin
-      LoadShutdownScript;
-      PythonEngine1.Finalize;
-    End
-
-    else
-  //
-    Begin
-      MsgText := 'The ' + FreeCADScreenName + ' Window Cannot Be Found.' + CrLf;
-      MsgText := MsgText +
-        'We Cannot Cleanly Unload The Interface To FreeCAD.' + CrLf;
-      MsgText := MsgText +
-      'THIS WILL MOST LIKELY RESULT IN AN APPLICATION ERROR WHEN THE PROGRAM IS CLOSED!'
-        + CrLf;
-      MsgText := MsgText + 'PLEASE SAVE YOUR WORK NOW!' + CrLf;
-      MsgText := MsgText +
-        'In The Future, Please Close FreeCAD  By Closing The CodeShark/FreeCAD Interface Dialog';
-      MessageDlg(MsgText, mtWarning, [mbOK], 0);
-    End
-  End;
-  ScriptLns.Free;
+    LoadWindowActionScript(WindowHide);
 end;
 
 procedure TFreeCadFrm.FormCreate(Sender: TObject);
@@ -833,6 +825,45 @@ begin
     PythonEngine1.LoadDll;
     MaskFPUExceptions(True);
   End;
+
+end;
+
+procedure TFreeCadFrm.FormDestroy(Sender: TObject);
+Var
+  MsgText: String;
+begin
+  if StartupLoaded then
+  begin
+  // see if we still have a FreeCAD window (user did not close)
+    DoEnumWindows;
+    if FreeCADFound then
+    Begin
+      LoadWindowActionScript(WindowClose);
+      PythonEngine1.Finalize;
+    End
+
+    else
+  //
+    Begin
+      MsgText := 'The ' + FreeCADScreenName + ' Window Cannot Be Found.' + CrLf;
+      MsgText := MsgText +
+        'We Cannot Cleanly Unload The Interface To FreeCAD.' + CrLf;
+      MsgText := MsgText +
+      'THIS WILL MOST LIKELY RESULT IN AN APPLICATION ERROR WHEN THE PROGRAM IS CLOSED!'
+        + CrLf;
+      MsgText := MsgText + 'PLEASE SAVE YOUR WORK NOW!' + CrLf;
+      MsgText := MsgText +
+        'In The Future, Please Close FreeCAD  By Closing The CodeShark/FreeCAD Interface Dialog';
+      MessageDlg(MsgText, mtWarning, [mbOK], 0);
+    End
+  End;
+  ScriptLns.Free;
+end;
+
+procedure TFreeCadFrm.FormShow(Sender: TObject);
+begin
+  if StartupLoaded then
+    LoadWindowActionScript(WindowShow)
 end;
 
 procedure TFreeCadFrm.LoadStartupScript;
@@ -1184,16 +1215,43 @@ Begin
 
 End;
 
-procedure TFreeCadFrm.LoadShutdownScript;
+procedure TFreeCadFrm.LoadWindowActionScript(Action : Integer);
+// LoadWindowActionScript actions
+//  WindowShow = 0;
+//  WindowHide = 1;
+//  WindowClose = 2;
 var
-  scriptFn: String;
+  scriptFn, WindowActionFN, WindowAction: String;
 
 Begin
+  case Action of
+
+   WindowShow:
+   Begin
+    WindowActionFN := WindowShowScript;
+    WindowAction := 'FreeCADGui.getMainWindow().show()'
+   End;
+
+   WindowHide:
+   Begin
+    WindowActionFN := WindowHideScript;
+    WindowAction := 'FreeCADGui.getMainWindow().hide()'
+   End;
+
+   WindowClose:
+   Begin
+    WindowActionFN := WindowCloseScript;
+    WindowAction := 'FreeCADGui.getMainWindow().close()'
+   End
+
+  end;
+
+
   ScriptLns.Clear;
   ExeMemo.Lines.Clear;
-  scriptFn := FrmMain.AppDataPath + PathDelim + ShutdownScript;
+  scriptFn := FrmMain.AppDataPath + PathDelim + WindowActionFN;
   // if custom script file exists and load custom specified
-  if SetFCparmsFrm.cbCustShutdown.Checked and FileExists(scriptFn) then
+  if SetFCparmsFrm.cbCustWindowAction.Checked and FileExists(scriptFn) then
   begin
     // load ExeMemo.Lines from custom script file
     Label2.Caption := scriptFn;
@@ -1202,10 +1260,8 @@ Begin
   else
   begin
     // else load default
-    Label2.Caption := 'Default Shutdown Script';
-    ScriptLns.Add('FreeCADGui.getMainWindow().close()');
-    // ScriptLns.Add('mw=FreeCADGui.getMainWindow()');
-    // ScriptLns.Add('mw.deleteLater()');
+    Label2.Caption := 'Default Window Action Script';
+    ScriptLns.Add(WindowAction);
     ExeMemo.Lines.Assign(ScriptLns);
   end;
 
@@ -1225,7 +1281,7 @@ Begin
   Except
     on E: Exception do
     begin
-      ShowMessage('Exception On Shutdown Script, class name = ' + E.ClassName +
+      ShowMessage('Exception On ' + Label2.Caption + ' Script, class name = ' + E.ClassName +
         CrLf + 'Exception message = ' + E.Message);
     end;
 
