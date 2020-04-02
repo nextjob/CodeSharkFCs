@@ -238,7 +238,7 @@ const
   AppDataName = PathDelim + MyAppName;
   IniFileName = PathDelim + 'CodeSharkFCs.ini';
 
-  CurVersion = '0.03';
+  CurVersion = '0.05';
 
   ApdModeFree = 0; // Not send or recieve in process
   ApdModeSend = 1; // send in process
@@ -568,21 +568,17 @@ begin
     LicenseRead := Inif.ReadBool(SetupSection, 'LicenseRead', FALSE);
 
     if not(LicenseRead) then
-    begin
-      MyAbout := TAboutBox.Create(nil);
-      Try
-        MyAbout.ShowModal
-      Finally
-        MyAbout.Free;
-      End;
-    end;
+      AboutBox.ShowModal;
     LoadIni(Inif);
   finally
     Inif.Free;
   end;
   //
   if not(LicenseRead) then
+  begin
+    ShowMessage('License Not Accepted, Terminating Appliation');
     Application.Terminate;
+  end;
   //
   SetDefaultFileExtension;
   GutterExecute;

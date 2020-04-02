@@ -29,4 +29,10 @@ Revision History
 		if FreeCAD application stated
 			- close FreeCAD application
 		destroy instance of FreeCAD Interface Dialog (and instance of Python4Delphi)
- 
+.04
+	About.pas & scrMain.pas
+	Prompt for license acceptance on about dialog close.
+	Notify user of application termination on license nonacceptance
+.05
+    FreeCad.pas
+	Add code for Linux version to find window names

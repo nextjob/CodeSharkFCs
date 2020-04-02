@@ -126,7 +126,7 @@ interface
 uses
 {$IFDEF FPC}
   Windows, JwaPsApi, Classes, SysUtils, FileUtil, Forms, Controls, Graphics,
-  ComCtrls,
+  ComCtrls, Process,
   Dialogs, ExtCtrls, StdCtrls, PythonEngine, PythonGUIInputOutput, JwaTlHelp32;
 {$ELSE}
   Windows, PsAPI, System.SysUtils, System.Variants, System.Classes,
@@ -267,8 +267,55 @@ var
   LastX, LastY, LastZ: String; // last point processed
   FreeCADPid: Integer; // PID of FreeCAD process, returned by  startup script
   FreeCADScreenName : String;  //Name we will assign to FreeCAD window in LoadWindowScript
-  FreeCADFound: Boolean;
+  FreeCADFound: Boolean;       // Our FreeCAD Screen Name Found with FindFreeCADWindow
 
+ //
+ // following is how we determine if the FreeCAD Window Name (we assigned in PanelViewScript.py) is still active
+ // we need to have a linux and windows version of this code
+ // so here it is
+ // Note in both versions of FindFreeCADWindow we shamelessly use ths global variables:
+ //   FreeCADScreenName  Name we will assign to FreeCAD window in LoadWindowScript
+ //   FreeCADFound  Our FreeCAD Screen Name Found T/F
+ //
+{$IFDEF LINUX}
+procedure FindFreeCADWindow;
+ var
+    AProcess: TProcess;
+    List : TStringList = nil;
+    Result : Boolean;
+    i :integer
+begin
+    Result := False;
+    FreeCADFound := False;
+    // use wmctrl to get a list of all windows
+    AProcess := TProcess.Create(nil);
+    AProcess.Executable:= 'wmctrl';
+    AProcess.Parameters.Add('-l');
+    AProcess.Options := AProcess.Options + [poWaitOnExit, poUsePipes];
+    try
+        AProcess.Execute;
+        Result := (AProcess.ExitStatus = 0);        // says at least one packet got back
+    except on
+        E: EProcess do Showmessage('Process execution failed: ' + E.Message );
+    end;
+    if Result then
+    Begin
+      List := TStringList.Create;
+      List.LoadFromStream(AProcess.Output);       // Get the output from wmcttl
+      for i := 0 to List.Count-1 do               // look for the our FreeCAD window
+        if Pos(FreeCADScreenName, List[i] then
+        Begin
+          FreeCADFound := True;
+          Exit;
+        End;
+      List.Free;
+      AProcess.Free;
+    End
+    Else
+      Showmessage('wmctrl returned no windows');
+
+end;
+{$ELSE}
 function EnumWinProc(wHandle: hWnd; lparam: Integer): Bool; stdcall;
 Const
   MAX_TEXT = MAX_PATH;
@@ -288,26 +335,24 @@ begin
 
   if IsAppMainWin then
   begin
-
     GetWindowText(wHandle, strText, MAX_TEXT);
-    GetClassName(wHandle, strClass, MAX_TEXT);
-
-    GetWindowThreadProcessID(wHandle, ProcId);
-
-    if (FreeCADPid > 0) and (FreeCADPid = ProcId) then
-      if strText = FreeCADScreenName then
-        FreeCADFound := True;
+//    GetClassName(wHandle, strClass, MAX_TEXT);
+//    GetWindowThreadProcessID(wHandle, ProcId);
+    if strText = FreeCADScreenName then
+      FreeCADFound := True;
   end;
 
   Result := True;
 end;
 
-procedure DoEnumWindows;
+procedure FindFreeCADWindow;
 var
   FirstWnd: cardinal;
 begin
-  EnumWindows(@EnumWinProc, cardinal(@FirstWnd));
+  FreeCADFound := False;
+  EnumWindows(@EnumWinProc, LPARAM(@FirstWnd));
 end;
+{$ENDIF}
 
 function SetEnvVarValue(const VarName, VarValue: string): Integer;
 begin
@@ -835,7 +880,7 @@ begin
   if StartupLoaded then
   begin
   // see if we still have a FreeCAD window (user did not close)
-    DoEnumWindows;
+    FindFreeCADWindow;
     if FreeCADFound then
     Begin
       LoadWindowActionScript(WindowClose);

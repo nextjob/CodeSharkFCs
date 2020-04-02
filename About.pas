@@ -37,6 +37,7 @@ type
     procedure FormShow(Sender: TObject);
     procedure OKButtonClick(Sender: TObject);
     procedure LabelurlClick(Sender: TObject);
+    procedure FormClose(Sender: TObject; var Action: TCloseAction);
   private
     { Private declarations }
   public
@@ -96,6 +97,15 @@ begin
 end; }
 
 procedure TAboutBox.OKButtonClick(Sender: TObject);
+begin
+  if Not(LicenseRead) then
+    // if we have no record of the license being agreed to, ask
+    iF MessageDlg('Do You Agree With The Terms Of The License?', mtConfirmation,
+      [mbYes, mbNo], 0, mbYes) = mrYes then
+      LicenseRead := True;
+end;
+
+procedure TAboutBox.FormClose(Sender: TObject; var Action: TCloseAction);
 begin
   if Not(LicenseRead) then
     // if we have no record of the license being agreed to, ask
