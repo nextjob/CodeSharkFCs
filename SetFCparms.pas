@@ -55,8 +55,10 @@ type
 var
   SetFCparmsFrm: TSetFCparmsFrm;
   PyRegVersion: string;
+  ExtraDebugging: Boolean; // if set output extra debug info to editor window
+  FormatForPathDisplay: Boolean; // add G1 to output (so we can send to path and evaluted with  p = Path.Path(editor lines)
 
-implementation
+ implementation
 
 {$R *.dfm}
 

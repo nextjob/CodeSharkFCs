@@ -22,6 +22,8 @@
 # *                                                                         *
 # ***************************************************************************
 # last FreeCAD mod Feb 27, 2017
+# cleanedges pulled from older version of PathUtils and modified via forum post
+#  https://forum.freecadweb.org/viewtopic.php?f=15&t=41463&p=352077&hilit=PathUtils.cleanedges#p352077
 '''PathKurveUtils - functions needed for using libarea (created by Dan Heeks) for making simple CNC profile paths '''
 from __future__ import print_function
 import Part
@@ -30,10 +32,47 @@ import area
 from PathScripts import PathUtils
 #from PathScripts.PathGeom import PathGeom
 import PathScripts.PathGeom as PathGeom
+from DraftGeomUtils import geomType
 #from nc.nc import *
 #import PathScripts.nc.iso
 #from PathScripts.nc.nc import *
 
+def cleanedges(splines, precision):
+    '''cleanedges([splines],precision). Convert BSpline curves, Beziers, to arcs that can be used for cnc paths.
+    Returns Lines as is. Filters Circle and Arcs for over 180 degrees. Discretizes Ellipses. Ignores other geometry. '''
+    edges = []
+    for spline in splines:
+        if geomType(spline) == "BSplineCurve":
+            arcs = spline.Curve.toBiArcs(precision)
+            for i in arcs:
+                edges.append(Part.Edge(i))
+
+        elif geomType(spline) == "BezierCurve":
+            newspline = spline.Curve.toBSpline()
+            arcs = newspline.toBiArcs(precision)
+            for i in arcs:
+                edges.append(Part.Edge(i))
+
+        elif geomType(spline) == "Ellipse":
+            edges = curvetowire(spline, 1.0)  # fixme hardcoded value
+
+        elif geomType(spline) == "Circle":
+            # arcs = PathUtils.filterArcs(spline)
+            # for i in arcs:
+            #     edges.append(Part.Edge(i))
+            edges.append(spline)
+
+        elif geomType(spline) == "Line":
+            edges.append(spline)
+
+        elif geomType(spline) == "LineSegment":
+            edges.append(spline)
+
+        else:
+            pass
+
+    return edges
+    
 def makeAreaVertex(seg):
     if seg.ShapeType == 'Edge':
         if isinstance(seg.Curve, Part.Circle):
@@ -59,7 +98,7 @@ def makeAreaVertex(seg):
 def makeAreaCurve(edges, direction, startpt=None, endpt=None):
     curveobj = area.Curve()
 
-    cleanededges = Part.__sortEdges__(PathUtils.cleanedges(edges, 0.01))
+    cleanededges = Part.__sortEdges__(cleanedges(edges, 0.01))
 
     # for e in cleanededges:
     # print str(e.valueAt(e.FirstParameter)) + "," +

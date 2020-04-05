@@ -147,7 +147,6 @@ object FrmMain: TFrmMain
     Gutter.Font.Name = 'Courier New'
     Gutter.Font.Style = []
     SearchEngine = SynEditSearch
-    ExplicitTop = 57
   end
   object ActionManager1: TActionManager
     ActionBars = <

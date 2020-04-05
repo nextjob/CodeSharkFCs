@@ -64,7 +64,7 @@ uses
   System.ImageList,
   Vcl.ImgList, Vcl.ComCtrls, SynEditSearch, SynEditMiscClasses,
   SynEditRegexSearch, Vcl.ExtCtrls, AdPacket, AdProtcl, AdPStat, OoMisc, AdPort,
-  AwtPcl, AdSelCom;
+  AwtPcl, AdSelCom, FreeCAD;
 
 type
   TFrmMain = class(TForm)
@@ -196,12 +196,9 @@ type
 
 var
   FrmMain: TFrmMain;
+  MyFreeCADFrm : TFreeCadFrm;
   // flags set in SetFCparms, read from CodeSharkFC.ini
   LicenseRead: Boolean; // if set do not show about screen on startup
-  ExtraDebugging: Boolean; // if set output extra debug info to editor window
-  FormatForPathDisplay: Boolean;
-  // add G1 to output (so we can send to path and evaluted with  p = Path.Path(editor lines)
-
   ApdMode: Integer; // flags mode AdpProtocal is in (send, recv, free)
   NameOfTempSendFile: String;
   // Name of the temp file created to give to Aysnc Pro to Transfer
@@ -219,7 +216,6 @@ var
 
   // Search / Replace Flags
   // options - to be saved to the registry
-var
   gbSearchBackwards: Boolean;
   gbSearchCaseSensitive: Boolean;
   gbSearchFromCaret: Boolean;
@@ -264,13 +260,11 @@ implementation
 {$R *.DFM}
 
 uses
-  ShellAPI, ShlObj, SetFCparms, FreeCad, About, PortClsTime,
+  ShellAPI, ShlObj, SetFCparms,  About, PortClsTime,
   cmset, ptops, Settings, AsciistatusU, SendRecvDlg,
   dlgSearchText, dlgReplaceText, dlgConfirmReplace, plgSearchHighlighter,
   SynEditTypes, SynEditMiscProcs;
 
-Var
-  MyFreeCADFrm : TFreeCadFrm;
 
 Function TFrmMain.ParityChar: CHAR;
 Begin

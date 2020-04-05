@@ -13,6 +13,8 @@ object FreeCadFrm: TFreeCadFrm
   OldCreateOrder = False
   OnClose = FormClose
   OnCreate = FormCreate
+  OnDestroy = FormDestroy
+  OnShow = FormShow
   PixelsPerInch = 96
   TextHeight = 13
   object Label1: TLabel
@@ -139,7 +141,7 @@ object FreeCadFrm: TFreeCadFrm
       end
       object btnGenPath: TButton
         Left = 13
-        Top = 99
+        Top = 94
         Width = 145
         Height = 25
         Caption = 'Generate Selected Path'

@@ -29,10 +29,14 @@ Revision History
 		if FreeCAD application stated
 			- close FreeCAD application
 		destroy instance of FreeCAD Interface Dialog (and instance of Python4Delphi)
-.04
+ .04
 	About.pas & scrMain.pas
 	Prompt for license acceptance on about dialog close.
 	Notify user of application termination on license nonacceptance
 .05
-    FreeCad.pas
-	Add code for Linux version to find window names
+    FreeCad.pas & scrMain.pas 
+	Add code for Linux version to find window names, mods to python module we create, see below:
+      There is something stange with referenceing objects on FreeCad dialog in the functions that will
+      be called via python.  Using the local namespace ie FreeCadFrm.lblEdgeCnt.Caption or  FreeCADFrm.PyOutMemo.Lines.Add('xyz')
+      results in an access viloation.  I suspect this is because  FreeCADFrm is dynamically created in srcMain.
+      However, if we reference it from the creator (scrMain  ie srcMain.MyFreeCADFrm.lblEdgeCnt.Caption ) we can get this to work

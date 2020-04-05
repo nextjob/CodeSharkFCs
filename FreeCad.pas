@@ -125,9 +125,14 @@ interface
 
 uses
 {$IFDEF FPC}
-  Windows, JwaPsApi, Classes, SysUtils, FileUtil, Forms, Controls, Graphics,
-  ComCtrls, Process,
-  Dialogs, ExtCtrls, StdCtrls, PythonEngine, PythonGUIInputOutput, JwaTlHelp32;
+ {$IFDEF MSWINDOWS}
+  Windows, //JwaPsApi, JwaTlHelp32,
+ {$ELSE}
+  Process,
+ {$ENDIF}
+  Classes, SysUtils, FileUtil, Forms, Controls, Graphics,
+  ComCtrls,
+  Dialogs, ExtCtrls, StdCtrls, PythonEngine, PythonGUIInputOutput;
 {$ELSE}
   Windows, PsAPI, System.SysUtils, System.Variants, System.Classes,
   Vcl.Graphics,
@@ -184,8 +189,6 @@ type
     procedure FormShow(Sender: TObject);
 
   private
-    function WrtArgsToEditor(pself, args: PPyObject): PPyObject; cdecl;
-    function ParseFreeCADString(Indata: String): Boolean;
     procedure WrtDebugInfo(Indata: Array of String);
     procedure WrtPoint(Indata: Array of String);
     procedure WrtLine(Indata: Array of String);
@@ -202,6 +205,9 @@ type
   public
     { Public declarations }
   end;
+
+  function WrtArgsToEditor(self, args: PPyObject): PPyObject; cdecl;
+  function ParseFreeCADString(Indata: String): Boolean;
 
 var
   FreeCadFrm: TFreeCadFrm;
@@ -269,6 +275,154 @@ var
   FreeCADScreenName : String;  //Name we will assign to FreeCAD window in LoadWindowScript
   FreeCADFound: Boolean;       // Our FreeCAD Screen Name Found with FindFreeCADWindow
 
+
+
+function WrtArgsToEditor(self, args: PPyObject): PPyObject; cdecl;
+// define the function we will use in the python scripts to get the data into the codeshark programing window
+// NOTE*** There is something stange with referenceing objects on FreeCad dialog in the functions that will
+// be called via python.  Using the local namespace ie FreeCadFrm.lblEdgeCnt.Caption or  FreeCADFrm.PyOutMemo.Lines.Add('xyz')
+// results in an access viloation.  I suspect this is because  FreeCADFrm is dynamically created in srcMain.
+// However, if we reference it from the creator (scrMain  ie srcMain.MyFreeCADFrm.lblEdgeCnt.Caption ) we can get this to work
+// lots more work to do here, lets just get the basics to work for now
+begin
+  with GetPythonEngine do
+  begin
+      srcMain.MyFreeCADFrm.lblEdgeCnt.Caption := srcMain.MyFreeCADFrm.PythonDelphiVar1.ValueAsString;
+      ParseFreeCADString(PyObjectAsString(args));
+//      FrmMain.Synedit.Lines.Add(PyObjectAsString(args));
+    Result := ReturnNone;
+  end;
+end;
+
+function ParseFreeCADString(Indata: String): Boolean;
+// Format of Indata:
+//
+// (Geometry,Point1_X,Point1_Y,Point1_Z,Point2_X,Point2_Y,Point2_Z,Radius,Center_X,Center_Y,Center_Z)
+//
+// Geometry - 'point', 'circle', 'line', 'User1', 'User2', 'User3', 'unknown (with type after unknown)
+// 'User1', 'User2', 'User3', - not sure what the point of this is but add for flexiblity
+// Point1_X,Point1_Y,Point1_Z,Point2_X,Point2_Y,Point2_Z,Radius,Center_X,Center_Y,Center_Z - 5 place decimal string value or empty string
+// ie:  ('line', '0.0', '0.0', '0.0', '50.0', '0.0', '0.0', '', '', '', '')
+
+Var
+  Params: array [0 .. ParamSz] of string;
+  TempStr, ParseParam, MyPid: String;
+  i, x: Integer;
+Begin
+  Result := True;
+  TempStr := StringReplace(Indata, '(', '', [rfReplaceAll, rfIgnoreCase]);
+  TempStr := StringReplace(TempStr, ')', '', [rfReplaceAll, rfIgnoreCase]);
+  TempStr := StringReplace(TempStr, '''', '', [rfReplaceAll, rfIgnoreCase]);
+  TempStr := StringReplace(TempStr, ' ', '', [rfReplaceAll, rfIgnoreCase]);
+
+  x := 0;
+  ParseParam := '';
+  If length(TempStr) > 0 then
+  begin
+    For i := 1 to length(TempStr) do
+    Begin
+      If TempStr[i] = ',' then
+      Begin
+        Params[x] := ParseParam;
+        inc(x);
+        ParseParam := '';
+
+        If x > ParamSz Then
+        Begin
+          // prevent array overflow condition, someone added fields to passed string but did not increase Paramsz constant to match
+          ShowMessage
+            ('More Fields passed than expected, Unable to complete parsing' +
+            CrLf + '(' + TempStr + ')');
+          if SetFCparms.ExtraDebugging then
+            FrmMain.SynEdit.Lines.Add('(' + TempStr + ')');
+          Result := False;
+          Exit;
+        end;
+
+      end
+      else
+        ParseParam := ParseParam + TempStr[i];
+    end;
+    Params[x] := ParseParam; // save last parameter
+  end
+  Else // somethng rotten here, exit with return code falses
+  Begin
+    Result := False;
+    Exit;
+  end;
+
+
+
+  // FrmMain.SynEdit.Lines.Add(TempStr);
+  // Params := TempStr.Split([',']);
+
+   if srcMain.MyFreeCADFrm.cbRawOut.Checked then
+      srcMain.MyFreeCADFrm.PyOutMemo.Lines.Add(Indata);
+
+  if Params[Geo] = OtherData then
+  //
+  // look to see what data we send back from FreeCAD
+  begin
+    if Params[X1] = 'PID' then
+    Begin
+      // we have FreeCAD windows PID, save for shutdown testing
+      MyPid := Params[Y1];
+      srcMain.MyFreeCADFrm.PyOutMemo.Lines.Add('FreeCAD PID = :' + MyPid + ':');
+      Try
+        FreeCADPid := StrToInt(MyPid)
+      Except
+        FreeCADPid := 0
+      End;
+
+    End
+    else
+      srcMain.MyFreeCADFrm.PyOutMemo.Lines.Add('Unknow Other Data Passed: ' + Indata);
+  end
+
+  else if Params[Geo] = Path then
+  // generate path
+
+  begin
+    // add the path statements to the memo
+    // for now all code dumps out in X1 data position
+    FrmMain.SynEdit.Lines.Add(Params[X1]);
+  end
+
+  else
+  // write selections to the editor memo only if cbBypassSel not checked
+  begin
+    if ExtraDebugging then
+      FreeCADFrm.WrtDebugInfo(Params);
+
+    if not(srcMain.MyFreeCADFrm.cbBypassSel.Checked) then
+
+      if (Params[Geo] = Point) then
+        // point type
+        FreeCADFrm.WrtPoint(Params)
+      else if (Params[Geo] = Line) then
+        // line type
+        FreeCADFrm.WrtLine(Params)
+      else if (Params[Geo] = Circle) then
+        // circle type
+        FreeCADFrm.WrtCircle(Params)
+      else if (Params[Geo] = Arc) then
+        // arc type
+        FreeCADFrm.WrtArc(Params)
+      else if Params[Geo] = User1 then
+        // User1
+        FreeCADFrm.WrtUser(1, Params)
+      else if Params[Geo] = User2 then
+        // User2
+        FreeCADFrm.WrtUser(2, Params)
+      else if Params[Geo] = User3 then
+        // User3
+        FreeCADFrm.WrtUser(3, Params)
+      else
+        srcMain.MyFreeCADFrm.PyOutMemo.Lines.Add('Unknow Data Passed: ' + Indata);
+  end;
+
+End;
+
  //
  // following is how we determine if the FreeCAD Window Name (we assigned in PanelViewScript.py) is still active
  // we need to have a linux and windows version of this code
@@ -283,7 +437,7 @@ procedure FindFreeCADWindow;
     AProcess: TProcess;
     List : TStringList = nil;
     Result : Boolean;
-    i :integer
+    i :integer;
 begin
     Result := False;
     FreeCADFound := False;
@@ -303,7 +457,7 @@ begin
       List := TStringList.Create;
       List.LoadFromStream(AProcess.Output);       // Get the output from wmcttl
       for i := 0 to List.Count-1 do               // look for the our FreeCAD window
-        if Pos(FreeCADScreenName, List[i] then
+        if Pos(FreeCADScreenName, List[i]) > 0 then
         Begin
           FreeCADFound := True;
           Exit;
@@ -352,163 +506,14 @@ begin
   FreeCADFound := False;
   EnumWindows(@EnumWinProc, LPARAM(@FirstWnd));
 end;
-{$ENDIF}
 
-function SetEnvVarValue(const VarName, VarValue: string): Integer;
-begin
-  // Simply call API function
-  if Windows.SetEnvironmentVariable(PChar(VarName), PChar(VarValue)) then
-    Result := 0
-  else
-    Result := GetLastError;
-end;
+{$ENDIF}
 
 function EnsurePathHasDoubleSlashes(Path: string): string;
 begin
   Result := StringReplace(Path, '\', '\\', [rfReplaceAll, rfIgnoreCase]);
   Result := StringReplace(Result, '\\\', '\\', [rfReplaceAll, rfIgnoreCase]);
 end;
-
-function TFreeCadFrm.WrtArgsToEditor(pself, args: PPyObject): PPyObject; cdecl;
-// define the function we will use in the python scripts to get the data into the codeshark programing window
-// lots more work to do here, lets just get the basics to work for now
-begin
-  with GetPythonEngine do
-  begin
-    lblEdgeCnt.Caption := PythonDelphiVar1.ValueAsString;
-    ParseFreeCADString(PyObjectAsString(args));
-    Result := ReturnNone;
-  end;
-end;
-
-function TFreeCadFrm.ParseFreeCADString(Indata: String): Boolean;
-// Format of Indata:
-//
-// (Geometry,Point1_X,Point1_Y,Point1_Z,Point2_X,Point2_Y,Point2_Z,Radius,Center_X,Center_Y,Center_Z)
-//
-// Geometry - 'point', 'circle', 'line', 'User1', 'User2', 'User3', 'unknown (with type after unknown)
-// 'User1', 'User2', 'User3', - not sure what the point of this is but add for flexiblity
-// Point1_X,Point1_Y,Point1_Z,Point2_X,Point2_Y,Point2_Z,Radius,Center_X,Center_Y,Center_Z - 5 place decimal string value or empty string
-// ie:  ('line', '0.0', '0.0', '0.0', '50.0', '0.0', '0.0', '', '', '', '')
-
-Var
-  Params: array [0 .. ParamSz] of string;
-  TempStr, ParseParam, MyPid: String;
-  i, x: Integer;
-Begin
-  Result := True;
-  TempStr := StringReplace(Indata, '(', '', [rfReplaceAll, rfIgnoreCase]);
-  TempStr := StringReplace(TempStr, ')', '', [rfReplaceAll, rfIgnoreCase]);
-  TempStr := StringReplace(TempStr, '''', '', [rfReplaceAll, rfIgnoreCase]);
-  TempStr := StringReplace(TempStr, ' ', '', [rfReplaceAll, rfIgnoreCase]);
-
-  x := 0;
-  ParseParam := '';
-  If length(TempStr) > 0 then
-  begin
-    For i := 1 to length(TempStr) do
-    Begin
-      If TempStr[i] = ',' then
-      Begin
-        Params[x] := ParseParam;
-        inc(x);
-        ParseParam := '';
-
-        If x > ParamSz Then
-        Begin
-          // prevent array overflow condition, someone added fields to passed string but did not increase Paramsz constant to match
-          ShowMessage
-            ('More Fields passed than expected, Unable to complete parsing' +
-            CrLf + '(' + TempStr + ')');
-          if ExtraDebugging then
-            FrmMain.SynEdit.Lines.Add('(' + TempStr + ')');
-          Result := False;
-          Exit;
-        end;
-
-      end
-      else
-        ParseParam := ParseParam + TempStr[i];
-    end;
-    Params[x] := ParseParam; // save last parameter
-  end
-  Else // somethng rotten here, exit with return code falses
-  Begin
-    Result := False;
-    Exit;
-  end;
-
-
-
-  // FrmMain.SynEdit.Lines.Add(TempStr);
-  // Params := TempStr.Split([',']);
-
-  if cbRawOut.Checked then
-    PyOutMemo.Lines.Add(Indata);
-
-  if Params[Geo] = OtherData then
-  //
-  // look to see what data we send back from FreeCAD
-  begin
-    if Params[X1] = 'PID' then
-    Begin
-      // we have FreeCAD windows PID, save for shutdown testing
-      MyPid := Params[Y1];
-      PyOutMemo.Lines.Add('FreeCAD PID = :' + MyPid + ':');
-      Try
-        FreeCADPid := StrToInt(MyPid)
-      Except
-        FreeCADPid := 0
-      End;
-
-    End
-    else
-      PyOutMemo.Lines.Add('Unknow Other Data Passed: ' + Indata);
-  end
-
-  else if Params[Geo] = Path then
-  // generate path
-
-  begin
-    // add the path statements to the memo
-    // for now all code dumps out in X1 data position
-    FrmMain.SynEdit.Lines.Add(Params[X1]);
-  end
-
-  else
-  // write selections to the editor memo only if cbBypassSel not checked
-  begin
-    if ExtraDebugging then
-      WrtDebugInfo(Params);
-
-    if not(cbBypassSel.Checked) then
-
-      if (Params[Geo] = Point) then
-        // point type
-        WrtPoint(Params)
-      else if (Params[Geo] = Line) then
-        // line type
-        WrtLine(Params)
-      else if (Params[Geo] = Circle) then
-        // circle type
-        WrtCircle(Params)
-      else if (Params[Geo] = Arc) then
-        // arc type
-        WrtArc(Params)
-      else if Params[Geo] = User1 then
-        // User1
-        WrtUser(1, Params)
-      else if Params[Geo] = User2 then
-        // User2
-        WrtUser(2, Params)
-      else if Params[Geo] = User3 then
-        // User3
-        WrtUser(3, Params)
-      else
-        PyOutMemo.Lines.Add('Unknow Data Passed: ' + Indata);
-  end;
-
-End;
 
 function TFreeCadFrm.IsSamePoint(PosX, PosY, PosZ: String): Boolean;
 Begin
@@ -529,12 +534,12 @@ procedure TFreeCadFrm.OutPutPoint(PosX, PosY, PosZ: String);
 Var
   MemoLine: String;
 begin
-  if FormatForPathDisplay then
+  if SetFCparms.FormatForPathDisplay then
     MemoLine := 'G1 X' + PosX + ' Y' + PosY
   else
     MemoLine := 'X' + PosX + ' Y' + PosY;
 
-  if cbIncludeZ.Checked then
+  if srcMain.MyFreeCADFrm.cbIncludeZ.Checked then
     MemoLine := MemoLine + ' Z' + PosZ;
   FrmMain.SynEdit.Lines.Add(MemoLine);
   SaveLastPoint(PosX, PosY, PosZ);
@@ -686,7 +691,7 @@ begin
 
   with Sender as TPythonModule do
   begin
-    AddDelphiMethod('WrtArgs', WrtArgsToEditor,
+    AddMethod('WrtArgs', WrtArgsToEditor,
       'Function writes args to CodeShark Editor');
   end;
 end;
@@ -852,9 +857,13 @@ begin
   PythonEngine1.DllPath := Trim(SetFCparmsFrm.PythonHome.Text);
   PythonEngine1.DllName := Trim(SetFCparmsFrm.PyDllName.Text);
   PythonEngine1.RegVersion := SetFCparms.PyRegVersion;
+
+ {$IFDEF MSWINDOWS}
   // need to set PYTHONHOME before startup or we will fail
   // Note setting  env PYTHONHOME does not seem to work, use dll call
+
   PythonEngine1.SetPythonHome(SetFCparmsFrm.PythonHome.Text);
+  {$ENDIF}
 
   MyPyDllPath := IncludeTrailingPathDelimiter(PythonEngine1.DllPath) +
     PythonEngine1.DllName;
@@ -938,7 +947,7 @@ Begin
 // setup here
 
 {$IFDEF LINUX}
-    ScriptLns.Add('sys.path.append(''' +SetFCparmsFrm.PythonHome.Text''')');
+    ScriptLns.Add('sys.path.append(''' +SetFCparmsFrm.FreeCadMod.Text + ''')');
 {$ELSE}
     PyPath := EnsurePathHasDoubleSlashes(SetFCparmsFrm.PythonHome.Text);
     ScriptLns.Add('sys.path.append(''' + PyPath + ''')');

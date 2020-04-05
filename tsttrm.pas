@@ -21,7 +21,7 @@ interface
 
 uses
   Windows, Messages, SysUtils, Classes, Graphics, Controls, Forms, Dialogs,
-  AdStatLt, OoMisc, StdCtrls, ExtCtrls, ADTrmEmu;
+  AdStatLt, OoMisc, StdCtrls, ExtCtrls, ADTrmEmu, AdSelCom;
 
 type
   TFrmTrm = class(TForm)
@@ -64,12 +64,29 @@ uses srcMain, Settings;
 
 procedure TFrmTrm.FormActivate(Sender: TObject);
 begin
-  FrmMain.ApdComPort1.Open := true;
-  AdTerminal1.ComPort := FrmMain.ApdComPort1;
-  ApdSLCtrl.ComPort := FrmMain.ApdComPort1;
-  ApdSLCtrl.monitoring := true;
+//  If FrmMain.ApdComPort1.ComNumber = 0 Then
+  if not(IsPortAvailable(FrmMain.ApdComPort1.ComNumber)) then
+  Begin
+    ShowMessage('Invalid Com Port Selected, use CNC -> Configure Port');
+    exit;
+  End;
+  try
+    FrmMain.ApdComPort1.Open := true;
+    AdTerminal1.ComPort := FrmMain.ApdComPort1;
+    ApdSLCtrl.ComPort := FrmMain.ApdComPort1;
+    ApdSLCtrl.monitoring := true;
   // ApdKeyboardEmulator1.Enabled:=true;   // apro 4.07 mod
-  AdTerminal1.Active := true;
+    AdTerminal1.Active := true;
+  Except
+    on E: Exception do
+    Begin
+      showMessage('Communications Error, Exception Class / Message raised: ' +
+          E.ClassName + ' ' + E.Message);
+      exit
+    End;
+  End;
+
+
   PanComStat.Caption := 'Port: ' + IntToStr(FrmMain.ApdComPort1.ComNumber);
   PanComStat.Caption := PanComStat.Caption + '  Baud: ' +
     IntToStr(FrmMain.ApdComPort1.Baud);

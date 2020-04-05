@@ -225,6 +225,12 @@
                 <Platform value="Win64">True</Platform>
             </Platforms>
             <Deployment Version="3">
+                <DeployFile LocalName="\CodeSharkFCs.exe" Configuration="Release" Class="ProjectOutput">
+                    <Platform Name="Win64">
+                        <RemoteName>CodeSharkFCs.exe</RemoteName>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
+                </DeployFile>
                 <DeployFile LocalName="CodeSharkFCs.exe" Configuration="Debug" Class="ProjectOutput">
                     <Platform Name="Win64">
                         <RemoteName>CodeSharkFCs.exe</RemoteName>
@@ -233,12 +239,6 @@
                 </DeployFile>
                 <DeployFile LocalName="\CodeSharkFCs.exe" Configuration="Debug" Class="ProjectOutput">
                     <Platform Name="Win32">
-                        <RemoteName>CodeSharkFCs.exe</RemoteName>
-                        <Overwrite>true</Overwrite>
-                    </Platform>
-                </DeployFile>
-                <DeployFile LocalName="\CodeSharkFCs.exe" Configuration="Release" Class="ProjectOutput">
-                    <Platform Name="Win64">
                         <RemoteName>CodeSharkFCs.exe</RemoteName>
                         <Overwrite>true</Overwrite>
                     </Platform>
