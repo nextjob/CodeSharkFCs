@@ -176,16 +176,21 @@ def makeAreaCurve(edges, direction, startpt=None, endpt=None):
 
 # profile command,
 # side_of_line should be 'Left' or 'Right' or 'On'
-def profile(curve, side_of_line, radius=1.0, vertfeed=0.0, horizfeed=0.0, offset_extra=0.0,
+#def profile(curve, side_of_line, radius=1.0, vertfeed=0.0, horizfeed=0.0, offset_extra=0.0,
+#            rapid_safety_space=None, clearance=None, start_depth=None, stepdown=None,
+#            final_depth=None, use_CRC=False,
+#            roll_on=None, roll_off=None, roll_start=False, roll_end=True, roll_radius=None,
+#            roll_start_pt=None, roll_end_pt=None):
+            
+def profile(offset_curve, side_of_line, radius=1.0, vertfeed=0.0, horizfeed=0.0, offset_extra=0.0,
             rapid_safety_space=None, clearance=None, start_depth=None, stepdown=None,
             final_depth=None, use_CRC=False,
             roll_on=None, roll_off=None, roll_start=False, roll_end=True, roll_radius=None,
             roll_start_pt=None, roll_end_pt=None):
-
     output = ""
     output += "G0 Z" + str(clearance) + "\n"
-    print("in profile: 151")
-    offset_curve = area.Curve(curve)
+#    print("in profile: 151")
+#    offset_curve = area.Curve(curve)
     if offset_curve.getNumVertices() <= 1:
         raise Exception ("Sketch has no elements!")
     if side_of_line == "On":
