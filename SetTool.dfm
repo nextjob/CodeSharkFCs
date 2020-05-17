@@ -2,7 +2,7 @@ object SetToolFRM: TSetToolFRM
   Left = 0
   Top = 0
   Caption = 'Set Tool'
-  ClientHeight = 464
+  ClientHeight = 462
   ClientWidth = 202
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
@@ -13,6 +13,13 @@ object SetToolFRM: TSetToolFRM
   OldCreateOrder = False
   PixelsPerInch = 96
   TextHeight = 13
+  object Label1: TLabel
+    Left = 113
+    Top = 115
+    Width = 75
+    Height = 13
+    Caption = 'FromShape XYZ'
+  end
   object Panel1: TPanel
     Left = 8
     Top = 8
@@ -57,6 +64,7 @@ object SetToolFRM: TSetToolFRM
     EditLabel.Caption = 'Tool Radius'
     TabOrder = 1
     Text = '1.00'
+    OnExit = GenericEditExitP
   end
   object VertFeedEdt: TLabeledEdit
     Left = 8
@@ -68,6 +76,7 @@ object SetToolFRM: TSetToolFRM
     EditLabel.Caption = 'Vert Feed Rate'
     TabOrder = 2
     Text = '0'
+    OnExit = GenericEditExitP
   end
   object HorzFeedEdt: TLabeledEdit
     Left = 8
@@ -79,6 +88,7 @@ object SetToolFRM: TSetToolFRM
     EditLabel.Caption = 'Horz Feed Rate'
     TabOrder = 3
     Text = '0'
+    OnExit = GenericEditExitP
   end
   object OffsetExtraEdt: TLabeledEdit
     Left = 8
@@ -90,6 +100,7 @@ object SetToolFRM: TSetToolFRM
     EditLabel.Caption = 'Offset Extra '
     TabOrder = 4
     Text = '0'
+    OnExit = GenericEditExitP
   end
   object RapidSafeSpaceEdt: TLabeledEdit
     Left = 8
@@ -101,6 +112,7 @@ object SetToolFRM: TSetToolFRM
     EditLabel.Caption = 'Rapid Safety Space'
     TabOrder = 5
     Text = '0'
+    OnExit = GenericEditExitP
   end
   object ClearanceEdt: TLabeledEdit
     Left = 8
@@ -112,6 +124,7 @@ object SetToolFRM: TSetToolFRM
     EditLabel.Caption = 'Clearance '
     TabOrder = 6
     Text = '0'
+    OnExit = GenericEditExitP
   end
   object StartDepthEdt: TLabeledEdit
     Left = 8
@@ -123,6 +136,7 @@ object SetToolFRM: TSetToolFRM
     EditLabel.Caption = 'Start Depth'
     TabOrder = 7
     Text = '0'
+    OnExit = GenericEditExit
   end
   object StepdownEdt: TLabeledEdit
     Left = 8
@@ -134,6 +148,7 @@ object SetToolFRM: TSetToolFRM
     EditLabel.Caption = 'Step down'
     TabOrder = 8
     Text = '.001'
+    OnExit = GenericEditExitP
   end
   object FinalDepthEdt: TLabeledEdit
     Left = 8
@@ -145,6 +160,7 @@ object SetToolFRM: TSetToolFRM
     EditLabel.Caption = 'Final Depth'
     TabOrder = 9
     Text = '-.001'
+    OnExit = GenericEditExit
   end
   object Panel2: TPanel
     Left = 95
@@ -181,5 +197,41 @@ object SetToolFRM: TSetToolFRM
       Caption = 'Left of Line'
       TabOrder = 2
     end
+  end
+  object StartXEdt: TLabeledEdit
+    Left = 113
+    Top = 152
+    Width = 81
+    Height = 21
+    EditLabel.Width = 33
+    EditLabel.Height = 13
+    EditLabel.Caption = 'Start X'
+    TabOrder = 11
+    Text = '0.000'
+    OnExit = GenericEditExit
+  end
+  object StartYEdt: TLabeledEdit
+    Left = 113
+    Top = 190
+    Width = 81
+    Height = 21
+    EditLabel.Width = 33
+    EditLabel.Height = 13
+    EditLabel.Caption = 'Start Y'
+    TabOrder = 12
+    Text = '0.000'
+    OnExit = GenericEditExit
+  end
+  object StartZEdt: TLabeledEdit
+    Left = 113
+    Top = 228
+    Width = 81
+    Height = 21
+    EditLabel.Width = 33
+    EditLabel.Height = 13
+    EditLabel.Caption = 'Start Z'
+    TabOrder = 13
+    Text = '0.000'
+    OnExit = GenericEditExit
   end
 end

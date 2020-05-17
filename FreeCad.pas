@@ -173,6 +173,7 @@ type
     Label4: TLabel;
     lblEdgeCnt: TLabel;
     PythonDelphiVar1: TPythonDelphiVar;
+    btnPathShapes: TButton;
 
     procedure btnExeFCClick(Sender: TObject);
     procedure PythonModule1Initialization(Sender: TObject);
@@ -187,6 +188,7 @@ type
     procedure btnSetToolClick(Sender: TObject);
     procedure FormDestroy(Sender: TObject);
     procedure FormShow(Sender: TObject);
+    procedure btnPathShapesClick(Sender: TObject);
 
   private
     procedure WrtDebugInfo(Indata: Array of String);
@@ -199,7 +201,7 @@ type
     procedure OutPutPoint(PosX, PosY, PosZ: String);
     procedure SaveLastPoint(PosX, PosY, PosZ: String);
 
-    function ExeScript(ScriptLns: TStringList): Boolean;
+    function ExeScript(ScriptLns: TStringList; ScriptFname : TFilename): Boolean;
     function IsSamePoint(PosX, PosY, PosZ: String): Boolean;
 
   public
@@ -698,7 +700,7 @@ end;
 
 procedure TFreeCadFrm.btnGenPathClick(Sender: TObject);
 Var
-  PathKurveStr, MsgText: String;
+  PathKurveStr, MsgText, ScriptFn: String;
 
 begin
   //
@@ -720,12 +722,13 @@ begin
   ExeMemo.Lines.Clear;
   ScriptLns.Add('print(''Edges: '' + str(len(MyEdgeList)))');
   PyOutMemo.Lines.Add('Execute script to get the edge list');
-  if not(ExeScript(ScriptLns)) then
+  if not(ExeScript(ScriptLns,'')) then
     Exit;
 
   // create MyCurve
   ScriptLns.Clear;
   ExeMemo.Lines.Clear;
+  ScriptFn := FrmMain.AppDataPath + PathDelim + '1CreateCurve.py';
   ScriptLns.Add('if len(MyEdgeList) > 1:'); // need at least 2 edges
 
   PathKurveStr := '    MyCurve = PathKurveUtils.makeAreaCurve(MyEdgeList,';
@@ -736,13 +739,14 @@ begin
   ScriptLns.Add(PathKurveStr);
   PyOutMemo.Lines.Add('Execute script to create MyCurve');
   PyOutMemo.Lines.Add(PathKurveStr);
-  if not(ExeScript(ScriptLns)) then
+  if not(ExeScript(ScriptLns, ScriptFn)) then
     Exit;
 
   // create the  PathKurveUtils.profile function  call
   //
   ScriptLns.Clear;
   ExeMemo.Lines.Clear;
+  ScriptFn := FrmMain.AppDataPath + PathDelim + '2PathKurveUtilsProfile.py';
   ScriptLns.Add('if len(MyEdgeList) > 1:'); // need at least 2 edges
   PathKurveStr := '    goutput = PathKurveUtils.profile(MyCurve, ';
 
@@ -763,13 +767,14 @@ begin
   ScriptLns.Add(PathKurveStr);
   PyOutMemo.Lines.Add('Execute script PathKurveUtils.profile function  call');
   PyOutMemo.Lines.Add(PathKurveStr);
-  if not(ExeScript(ScriptLns)) then
+  if not(ExeScript(ScriptLns, ScriptFn)) then
     Exit;
 
   // send the gcode to the editor
   //
   ScriptLns.Clear;
   ExeMemo.Lines.Clear;
+  ScriptFn := FrmMain.AppDataPath + PathDelim + '3GcodeToEditor.py';
   ScriptLns.Add('if len(goutput) != 0:'); // any output?
   ScriptLns.Add('    for gcodeln in goutput.splitlines():'); // any output?
   ScriptLns.Add('        CaptureFC.WrtArgs(''' + Path +
@@ -778,12 +783,13 @@ begin
   ScriptLns.Add('    CaptureFC.WrtArgs(''' + Path +
     ''','' error generating G-Code'','''','''','''','''','''','''','''','''','''')');
   PyOutMemo.Lines.Add('Execute script Retrieve goutput ');
-  if not(ExeScript(ScriptLns)) then
+  if not(ExeScript(ScriptLns, ScriptFn)) then
     Exit;
 
   // finally show the path
   //
   ScriptLns.Clear;
+  ScriptFn := FrmMain.AppDataPath + PathDelim + '4ShowPath.py';
   // ExeMemo.Lines.Clear;
   ScriptLns.Add('if len(goutput) != 0:'); // any output?
   ScriptLns.Add('    p = Path.Path(goutput)');
@@ -791,7 +797,7 @@ begin
     ('    myPath = FreeCAD.ActiveDocument.addObject("Path::Feature","Import")');
   ScriptLns.Add('    myPath.Path = p');
   ScriptLns.Add('    FreeCAD.ActiveDocument.recompute()');
-  ExeScript(ScriptLns);
+  ExeScript(ScriptLns, ScriptFn);
 
   // clear the slected edge list
   PyOutMemo.Lines.Add('Execute script Clear Edge List');
@@ -799,14 +805,76 @@ begin
   ScriptLns.Add('goutput = ''''');
   ScriptLns.Add('MyEdgeList = []');
   lblEdgeCnt.Caption := '0';
-  ExeScript(ScriptLns);
+  ExeScript(ScriptLns, '');
 
 end;
 
-function TFreeCadFrm.ExeScript(ScriptLns: TStringList): Boolean;
+procedure TFreeCadFrm.btnPathShapesClick(Sender: TObject);
+ Var
+  MsgText, Vector, ScriptFn: String;
+begin
+
+//
+//  NOTES    https://wiki.freecadweb.org/Path_FromShapes/en
+//  Path FromShapes doesn't match the current Path workflow. For that reason it's moved to the experimental features.
+//  This tool generates tool-paths from Path Object edges. Tool-paths are uncompensated for tool radius.
+//  There is no Tool controller associated with the generated tool-paths .
+//
+//  Path.fromShapes(shapes, start=Vector(), return_end=False arc_plane=1, sort_mode=1, min_dist=0.0, abscissa=3.0,
+//    nearest_k=3, orientation=0, direction=0, threshold=0.0, retract_axis=2, retraction=0.0, resume_height=0.0,
+//    segmentation=0.0, feedrate=0.0, feedrate_v=0.0, verbose=true, abs_center=false, preamble=true, deflection=0.01)
+//
+// Edges are saved in MyEdgeList as user clicks on object (line or arc for now)
+
+  if StrToInt(PythonDelphiVar1.ValueAsString) <= 1 then
+  Begin
+    MsgText := 'Not Enough Edges Selected (>1), Path generation not possible';
+    MessageDlg(MsgText, mtWarning, [mbOK], 0);
+    Exit
+  End;
+
+  ScriptLns.Clear;
+  ExeMemo.Lines.Clear;
+  ScriptLns.Add('print(''Edges: '' + str(len(MyEdgeList)))');
+  PyOutMemo.Lines.Add('Execute script to get the edge list');
+  if not(ExeScript(ScriptLns,'')) then
+    Exit;
+
+  // create Path FromShapes
+  ScriptLns.Clear;
+  ExeMemo.Lines.Clear;
+  ScriptFn := FrmMain.AppDataPath + PathDelim + 'PathFromShape.py';
+  ScriptLns.Add('if len(MyEdgeList) > 1:'); // need at least 2 edges
+  ScriptLns.Add('    aWire=Part.Wire(MyEdgeList)');
+  ScriptLns.Add('    obj = FreeCAD.ActiveDocument.addObject("Path::Feature","myPath")');
+  Vector :=  'FreeCAD.Vector(' + SetToolFRM.StartXEdt.Text + ',' + SetToolFRM.StartYEdt.Text + ',' +  SetToolFRM.StartZEdt.Text + ')';
+  if SetToolFrm.rbCCW.Checked then
+    ScriptLns.Add('    obj.Path = Path.fromShapes(aWire, start=' + Vector +', orientation=0)')
+  else
+    ScriptLns.Add('    obj.Path = Path.fromShapes(aWire, start=' + Vector +', orientation=1)');
+  ScriptLns.Add('    p =  obj.Path');
+  ScriptLns.Add('    for gcodeln in p.toGCode().splitlines():');
+  ScriptLns.Add('        CaptureFC.WrtArgs(''' + Path + ''',gcodeln,'''','''','''','''','''','''','''','''','''')');
+  PyOutMemo.Lines.Add('Execute script Retrieve goutput ');
+  if not(ExeScript(ScriptLns, ScriptFn)) then
+    Exit;
+
+   // clear the slected edge list
+  PyOutMemo.Lines.Add('Execute script Clear Edge List');
+  ScriptLns.Clear;
+  ScriptLns.Add('goutput = ''''');
+  ScriptLns.Add('MyEdgeList = []');
+  lblEdgeCnt.Caption := '0';
+  ExeScript(ScriptLns, '');
+
+end;
+
+function TFreeCadFrm.ExeScript(ScriptLns: TStringList; ScriptFname : TFilename): Boolean;
 begin
   Result := True;
   ExeMemo.Lines.Assign(ScriptLns);
+  if Length(ScriptFname) > 0 then  // if we passed a filename save the script text
+    ExeMemo.Lines.SaveToFile(ScriptFname);
   // execute the script
   try
     MaskFPUExceptions(True);
@@ -1080,7 +1148,7 @@ Begin
     ScriptLns.Add('  if dw.objectName() == "Tree view":');
     ScriptLns.Add('    dw.hide()');
     ScriptLns.Add('  if dw.objectName() == "Combo View":');
-    ScriptLns.Add('    dw.hide()');
+    ScriptLns.Add('    dw.showNormal()');
     ScriptLns.Add('  if dw.objectName() == "Property view":');
     ScriptLns.Add('    dw.hide()');
     ScriptLns.Add('  if dw.objectName() == "Report view":');

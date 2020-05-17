@@ -104,19 +104,19 @@ object FreeCadFrm: TFreeCadFrm
       Width = 177
       Height = 144
       Alignment = taLeftJustify
-      Caption = '  Path'
+      Caption = '  Path  Generation'
       TabOrder = 2
       VerticalAlignment = taAlignTop
       object Label4: TLabel
-        Left = 16
-        Top = 75
+        Left = 18
+        Top = 79
         Width = 100
         Height = 13
         Caption = 'Selected Edge Count'
       end
       object lblEdgeCnt: TLabel
-        Left = 122
-        Top = 75
+        Left = 132
+        Top = 79
         Width = 6
         Height = 13
         Caption = '0'
@@ -133,20 +133,30 @@ object FreeCadFrm: TFreeCadFrm
       object btnSetTool: TButton
         Left = 13
         Top = 41
-        Width = 145
-        Height = 25
+        Width = 52
+        Height = 32
         Caption = 'Set Tool'
         TabOrder = 1
         OnClick = btnSetToolClick
       end
       object btnGenPath: TButton
-        Left = 13
-        Top = 94
-        Width = 145
-        Height = 25
-        Caption = 'Generate Selected Path'
+        Left = 71
+        Top = 41
+        Width = 90
+        Height = 32
+        Caption = 'Path by PathKurveUtils'
         TabOrder = 2
+        WordWrap = True
         OnClick = btnGenPathClick
+      end
+      object btnPathShapes: TButton
+        Left = 16
+        Top = 98
+        Width = 145
+        Height = 31
+        Caption = 'Path by FromShapes'
+        TabOrder = 3
+        OnClick = btnPathShapesClick
       end
     end
   end

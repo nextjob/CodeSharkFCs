@@ -42,6 +42,12 @@ type
     rbOnLine: TRadioButton;
     rbRightofLine: TRadioButton;
     rbLeftofLine: TRadioButton;
+    StartXEdt: TLabeledEdit;
+    StartYEdt: TLabeledEdit;
+    StartZEdt: TLabeledEdit;
+    Label1: TLabel;
+    procedure GenericEditExit(Sender: TObject);
+    procedure GenericEditExitP(Sender: TObject);
   private
     { Private declarations }
   public
@@ -54,5 +60,40 @@ var
 implementation
 
 {$R *.dfm}
+
+procedure TSetToolFRM.GenericEditExit(Sender: TObject);
+Var
+Value : Double;
+begin
+  with Sender as TLabeledEdit do
+  begin
+    if Not(TryStrToFloat(Text, Value)) then
+    Begin
+      ShowMessage('Value Entered for ' + EditLabel.Caption + ': ' + Text + ' Is Invalid, Retry');
+      Setfocus;
+    End;
+  end;
+end;
+
+procedure TSetToolFRM.GenericEditExitP(Sender: TObject);
+Var
+Value : Double;
+begin
+  with Sender as TLabeledEdit do
+  begin
+    if Not(TryStrToFloat(Text, Value)) then
+      Begin
+        ShowMessage('Value Entered for ' + EditLabel.Caption + ': ' + Text + ' Is Invalid, Retry');
+        Setfocus;
+      End
+    Else
+      if Value < 0  then
+      Begin
+        ShowMessage('Value Entered for ' + EditLabel.Caption + ': ' + Text + ' Cannot Be Negative, Retry');
+        Setfocus;
+      End
+  end;
+end;
+
 
 end.
