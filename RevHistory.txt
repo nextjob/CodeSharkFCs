@@ -45,4 +45,7 @@ Revision History
 	Add PathFromShapes option for path generation
     SetTool.pas
 	Add Start XYZ for Path FromShapes
-	Add basic input validation	
+	Add basic input validation
+.07
+    SetTool.pas
+	Rearrange tool settings, id PathShape vs PathKurveUtils settings	

@@ -26,6 +26,14 @@ uses
 type
   TSetToolFRM = class(TForm)
     Panel1: TPanel;
+    Label2: TLabel;
+    rbCW: TRadioButton;
+    rbCCW: TRadioButton;
+    Panel3: TPanel;
+    StartZEdt: TLabeledEdit;
+    StartYEdt: TLabeledEdit;
+    StartXEdt: TLabeledEdit;
+    Panel4: TPanel;
     RadiusEdt: TLabeledEdit;
     VertFeedEdt: TLabeledEdit;
     HorzFeedEdt: TLabeledEdit;
@@ -35,17 +43,10 @@ type
     StartDepthEdt: TLabeledEdit;
     StepdownEdt: TLabeledEdit;
     FinalDepthEdt: TLabeledEdit;
-    Label2: TLabel;
-    rbCW: TRadioButton;
-    rbCCW: TRadioButton;
     Panel2: TPanel;
     rbOnLine: TRadioButton;
     rbRightofLine: TRadioButton;
     rbLeftofLine: TRadioButton;
-    StartXEdt: TLabeledEdit;
-    StartYEdt: TLabeledEdit;
-    StartZEdt: TLabeledEdit;
-    Label1: TLabel;
     procedure GenericEditExit(Sender: TObject);
     procedure GenericEditExitP(Sender: TObject);
   private

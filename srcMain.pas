@@ -17,40 +17,6 @@
 
 unit srcMain;
 
-//
-
-// - - - - - - - - - - - - - - - ASYNCPRO MODS FOR USE WITH CodeSharkFC - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  - - - - - - -  - - -
-
-// MODS made to AdProtcl - to allow display of seconds remaining before EOF on receive operation and display status
-// add function GetEofTimerRemaining for property EofTimerRemaining
-// add function GetProtocolState for property GetProtocolState
-
-// around line 340
-// function GetEofTimerRemaining : LongInt;
-// function GetProtocolState : TAsciiState;
-
-
-// around line 546
-// property EofTimerRemaining : LongInt
-// read GetEofTimerRemaining;
-
-// property ProtocolState : TAsciiState
-// read GetProtocolState;
-
-// around line 1383
-// function TApdCustomProtocol.GetEofTimerRemaining : LongInt;
-// {  -Return the ticks remaining until EOF raised for recieve operation}
-// begin
-// PData^.aHc.ValidDispatcher.TimerTicksRemaining(PData^.aTimeoutTrigger, Result);
-// end;
-
-
-// function TApdCustomProtocol.GetProtocolState : TAsciiState;
-// {-Return the protocol state}
-// begin
-// Result := PData^.sAsciiState;
-// end;
-
 {$I SynEdit.inc}
 
 interface
@@ -234,7 +200,7 @@ const
   AppDataName = PathDelim + MyAppName;
   IniFileName = PathDelim + 'CodeSharkFCs.ini';
 
-  CurVersion = '0.05';
+  CurVersion = '0.07';
 
   ApdModeFree = 0; // Not send or recieve in process
   ApdModeSend = 1; // send in process
