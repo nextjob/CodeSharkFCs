@@ -49,3 +49,12 @@ Revision History
 .07
     SetTool.pas
 	Rearrange tool settings, id PathShape vs PathKurveUtils settings	
+.08
+    Per user request:
+	Add MiniEdit
+	Tools 
+	  Sequence Number insert or remove (renumber)
+	  Remove spaces 
+	  Tool Renumber
+	Force editor to upper case letters
+	 

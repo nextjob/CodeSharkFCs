@@ -96,6 +96,10 @@ type
     ProgramSettings: TAction;
     ToolButtonFileOpen: TToolButton;
     SynEditRegexSearch: TSynEditRegexSearch;
+    MiniEdit: TAction;
+    RemoveSpaces: TAction;
+    SeqNumbers: TAction;
+    ToolRenumber: TAction;
     procedure FileOpen1Accept(Sender: TObject);
     procedure FileSaveAs1Accept(Sender: TObject);
     procedure ActSaveExecute(Sender: TObject);
@@ -144,6 +148,15 @@ type
     Function ParityChar: CHAR;
     Function FlowChar: STRING;
     procedure FormShow(Sender: TObject);
+    procedure MiniEditExecute(Sender: TObject);
+    procedure EnableOptions;
+    procedure SynEditKeyPress(Sender: TObject; var Key: Char);
+    procedure RemoveSpacesExecute(Sender: TObject);
+    procedure ToolRenumberExecute(Sender: TObject);
+    procedure SeqNumbersExecute(Sender: TObject);
+    Procedure AddLN;
+    Procedure RmvLn;
+    Function FindNumEnd(SearchSt: STRING; Strt: INTEGER): INTEGER;
 
   private
     { Private declarations }
@@ -200,7 +213,7 @@ const
   AppDataName = PathDelim + MyAppName;
   IniFileName = PathDelim + 'CodeSharkFCs.ini';
 
-  CurVersion = '0.07';
+  CurVersion = '0.08';
 
   ApdModeFree = 0; // Not send or recieve in process
   ApdModeSend = 1; // send in process
@@ -227,7 +240,7 @@ implementation
 
 uses
   ShellAPI, ShlObj, SetFCparms,  About, PortClsTime,
-  cmset, ptops, Settings, AsciistatusU, SendRecvDlg,
+  cmset, ptops, Settings, AsciistatusU, SendRecvDlg, lnum, tnum,
   dlgSearchText, dlgReplaceText, dlgConfirmReplace, plgSearchHighlighter,
   SynEditTypes, SynEditMiscProcs;
 
@@ -372,7 +385,10 @@ procedure TFrmMain.SaveExistingEditSession;
 Begin
   if SynEdit.Modified then
     if EditFileNameWithPath = '' then
-      FileSaveAs1.Execute
+      case MessageDlg('Do You Wish to Save This File Before Closing? ', mtConfirmation, mbYesNo, 0) of
+        mrYes:
+          FileSaveAs1.Execute
+      end
     else
       case MessageDlg('Save changes to "' +
         ExtractFileName(EditFileNameWithPath) + '"?', mtConfirmation,
@@ -416,6 +432,7 @@ begin
       4:
         ParityStr := 'SPACE';
     end;
+
     Inif.WriteString(SerialSection, 'Parity', ParityStr);
     // software flow, we are either none or XON/XOFF
     if ApdComPort1.SWFlowOptions = swfNone then
@@ -462,10 +479,9 @@ begin
     // defaults
     Inif.WriteString(DefaultsSection, 'DfltFileExt', DefaultFileExtension);
     Inif.WriteBool(DefaultsSection, 'OpenOnReceive', OpenOnReceive.Checked);
-    Inif.WriteBool(DefaultsSection, 'GutterVisible',
-      FrmSettings.GutterCB.Checked);
-    Inif.WriteBool(DefaultsSection, 'NbrsOnGutter',
-      FrmSettings.NbrsOnGutterCB.Checked);
+    Inif.WriteBool(DefaultsSection, 'GutterVisible', FrmSettings.GutterCB.Checked);
+    Inif.WriteBool(DefaultsSection, 'NbrsOnGutter',  FrmSettings.NbrsOnGutterCB.Checked);
+    Inif.WriteBool(DefaultsSection, 'ForceUpperCase',FrmSettings.ForceUpperCaseCB.Checked);
 
   Finally
     Inif.UpdateFile;
@@ -539,6 +555,8 @@ begin
     ShowMessage('License Not Accepted, Terminating Appliation');
     Application.Terminate;
   end;
+
+  EnableOptions;
   //
   SetDefaultFileExtension;
   GutterExecute;
@@ -645,6 +663,8 @@ Begin
     'GutterVisible', FrmSettings.GutterCB.Checked);
   FrmSettings.NbrsOnGutterCB.Checked := Inif.ReadBool(DefaultsSection,
     'NbrsOnGutter', FrmSettings.NbrsOnGutterCB.Checked);
+  FrmSettings.ForceUpperCaseCB.Checked := Inif.ReadBool(DefaultsSection,
+    'ForceUpperCase', FrmSettings.ForceUpperCaseCB.Checked);
 
   If DefaultFileExtension = 'G' Then
     FrmSettings.FileExtLBX.ItemIndex := 0
@@ -659,6 +679,40 @@ Begin
   Else
     FrmSettings.FileExtLBX.ItemIndex := 5;
 
+End;
+
+procedure TFrmMain.EnableOptions;
+Begin
+  MiniEdit.Enabled := FileExists(IncludeTrailingBackSlash(ExtractFilePath(Application.exename)) +
+    'MINIEDIT.EXE');
+End;
+
+
+procedure TFrmMain.MiniEditExecute(Sender: TObject);
+Var
+  ShCmdLn, ShCmdpm: STRING;
+  formWidth: INTEGER;
+  sformTop, sformLeft, sformWidth, sformHeight: STRING;
+Begin
+  // mini edit plugin
+  // shrink current form width for mini edit window
+  formWidth := (FrmMain.Width) DIV 2;
+  If formWidth < 300 Then
+  Begin
+    formWidth := 300
+  End;
+  FrmMain.Width :=  formWidth;
+  sformWidth := IntToStr(formWidth);
+  sformHeight := IntToStr(FrmMain.Height);
+  sformLeft := IntToStr(FrmMain.Left + FrmMain.Width);
+  sformTop := IntToStr(FrmMain.Top);
+
+  ShCmdLn := IncludeTrailingBackSlash(ExtractFilePath(Application.exename)) +
+    'MINIEDIT.EXE';
+  ShCmdpm := 'TOP ' + sformTop + ' LEFT ' + sformLeft + ' HEIGHT ' + sformHeight
+    + ' WIDTH ' + sformWidth;
+  ShellExecute(GetDesktopWindow(), NIL, PCHAR(ShCmdLn), PCHAR(ShCmdpm), NIL,
+    SW_SHOWNORMAL);
 End;
 
 procedure TFrmMain.NewExecute(Sender: TObject);
@@ -879,6 +933,161 @@ Begin
 
 End;
 
+procedure TFrmMain.SeqNumbersExecute(Sender: TObject);
+Begin
+  // line numbers
+  FrmLN.showmodal;
+  If FrmLN.modalresult = mrCancel Then
+  Begin
+    exit
+  End;
+  If FrmLN.RBRmv.Checked = TRUE Then
+  Begin
+    RmvLN
+  End;
+  If FrmLN.RBIns.Checked = TRUE Then
+  Begin
+    AddLN
+  End;
+  SynEdit.SetFocus;
+  SynEdit.Refresh;
+End;
+
+ Procedure TFrmMain.RmvLN;
+Var
+  Vptr, NumEnd, TsPtr, CmtPtr: INTEGER;
+  I: LONGINT;
+  Nstr: STRING;
+Begin
+  // remove line numbers
+  Vptr := 0;
+  I := 0;
+  NumEnd := 0;
+  CmtPtr := 0;
+  TsPtr := 0;
+
+  For I := 0 To SynEdit.lines.count - 1 Do
+  Begin
+    TsPtr := Pos('[', SynEdit.lines[I]);
+    CmtPtr := Pos('(', SynEdit.lines[I]);
+    If (TsPtr = 0) AND (CmtPtr = 0) Then
+    Begin
+      Vptr := Pos('N', SynEdit.lines[I]);
+      If Vptr = 1 Then // N must be first char in line to remove
+      Begin
+        NumEnd := FindNumEnd(SynEdit.lines[I], Vptr + 1);
+        Nstr := Copy(SynEdit.lines[I], Vptr + NumEnd, Length(SynEdit.lines[I]));
+        SynEdit.lines[I] := Trim(Nstr);
+      End;
+    End; // toolsheet check
+  End; // loop
+End;
+
+Procedure TFrmMain.AddLN;
+Var
+  SeqSt, SeqInc, SeqNum, TsPtr, PrcPtr, OnmPtr, CmtPtr: INTEGER;
+  Vptr, NumEnd, M30Ptr, M99Ptr: INTEGER;
+  I: LONGINT;
+  Nstr: STRING;
+
+Begin
+  // add line numbers
+  Vptr := 0;
+  SeqSt := 0;
+  SeqInc := 0;
+  SeqNum := 0;
+  I := 0;
+  NumEnd := 0;
+  TsPtr := 0;
+  PrcPtr := 0;
+  OnmPtr := 0;
+  CmtPtr := 0;
+  M30Ptr := 0;
+  M99Ptr := 0;
+
+  SeqSt := FrmLN.SEditStart.Value;
+  SeqInc := FrmLN.SEditInc.Value;
+  SeqNum := SeqSt - SeqInc;
+
+  For I := 0 To SynEdit.lines.count - 1 Do
+  Begin
+    TsPtr := Pos('[', SynEdit.lines[I]);
+    PrcPtr := Pos('%', SynEdit.lines[I]);
+    OnmPtr := Pos('O', SynEdit.lines[I]);
+    CmtPtr := Pos('(', SynEdit.lines[I]);
+    M30Ptr := Pos('M30', SynEdit.lines[I]);
+    M99Ptr := Pos('M99', SynEdit.lines[I]);
+
+    If (TsPtr = 0) AND (PrcPtr = 0) AND (CmtPtr = 0) AND (OnmPtr = 0) AND
+      (M30Ptr = 0) AND (M99Ptr = 0) AND (SynEdit.lines[I] <> '') Then
+    Begin
+      Vptr := Pos('N', SynEdit.lines[I]);
+      If Vptr = 1 Then
+      Begin
+        NumEnd := FindNumEnd(SynEdit.lines[I], Vptr + 1);
+        Nstr := Copy(SynEdit.lines[I], Vptr + NumEnd, Length(SynEdit.lines[I]));
+        SynEdit.lines[I] := Trim(Nstr);
+      End
+      Else
+      Begin
+        If FrmLN.CBoxLead.Checked = TRUE Then
+        Begin
+          Nstr := 'N0' + IntToStr(SeqNum + SeqInc)
+        End
+        Else
+        Begin
+          Nstr := 'N' + IntToStr(SeqNum + SeqInc)
+        End;
+        If FrmLN.CBoxAdd.Checked = TRUE Then
+        Begin
+          Nstr := Nstr + ' '
+        End;
+        Nstr := Nstr + SynEdit.lines[I];
+        SynEdit.lines[I] := Trim(Nstr);
+      End;
+      // increment Seq#
+      SeqNum := SeqNum + SeqInc;
+    End; // ToolSheet
+  End; // loop
+End;
+
+Function TFrmMain.FindNumEnd(SearchSt: STRING; Strt: INTEGER): INTEGER;
+Var
+  N: INTEGER;
+  S, Code: INTEGER;
+  CV: STRING;
+Begin
+  result := 0;
+  For N := Strt To Length(SearchSt) Do
+  Begin
+    CV := Copy(SearchSt, N, 1);
+    If CV = ' ' Then
+    Begin
+      continue
+    End; // allow for spaces inbetween letter and value
+    val(CV, S, Code);
+    If Code <> 0 Then
+    Begin
+      result := N - 1;
+      If (CV <> '.') AND (CV <> '-') Then
+      Begin
+        Break
+      End;
+    End
+    Else
+    Begin
+      result := N
+    End;
+    If result = (Strt - 1) Then
+    Begin
+      result := result + 1
+    End;
+  End;
+End;
+
+
+
+
 Procedure TFrmMain.SetDefaultFileExtension;
 
 Var
@@ -1057,6 +1266,22 @@ Begin
       End;
     End;
     // End;
+  End;
+End;
+
+procedure TFrmMain.RemoveSpacesExecute(Sender: TObject);
+Var
+  S: LONGINT;
+  RmvStr: STRING;
+
+Begin
+  // remove spaces from program (char #32)
+  // and blank lines
+  For S := 0 To SynEdit.lines.count - 1 Do
+  Begin
+    // remove spaces from lines
+    RmvStr := SynEdit.lines[S];
+  	SynEdit.lines[S] := StringReplace(RmvStr, ' ', '', [rfReplaceAll]); //Remove spaces
   End;
 End;
 
@@ -1678,6 +1903,16 @@ begin
     end;
 end;
 
+procedure TFrmMain.SynEditKeyPress(Sender: TObject; var Key: Char);
+begin
+if FrmSettings.ForceUpperCaseCB.Checked then
+Begin
+  if Key IN ['a' .. 'z'] then
+    Key := upcase(Key);
+End;
+
+end;
+
 procedure TFrmMain.SynEditorReplaceText(Sender: TObject;
   const ASearch, AReplace: UnicodeString; Line, Column: Integer;
   var Action: TSynReplaceAction);
@@ -1712,5 +1947,136 @@ begin
     end;
   end;
 end;
+
+procedure TFrmMain.ToolRenumberExecute(Sender: TObject);
+Var
+  Vptr, NumEnd, TsPtr, CmtPtr, CVal: INTEGER;
+  I: LONGINT;
+  Nstr, LCpy: STRING;
+  Nvl: DOUBLE;
+
+Begin
+  // tool renumbering
+  frmTR.showmodal;
+  If frmTR.modalresult = mrCancel Then
+  Begin
+    exit
+  End;
+  Vptr := 0;
+  I := 0;
+  NumEnd := 0;
+  CmtPtr := 0;
+  TsPtr := 0;
+  CVal := frmTR.SEditVlu.Value;
+  Nvl := 0;
+
+  For I := 0 To SynEdit.lines.count - 1 Do
+  Begin
+    TsPtr := Pos('[', SynEdit.lines[I]);
+    CmtPtr := Pos('(', SynEdit.lines[I]);
+    If (TsPtr = 0) AND (CmtPtr = 0) Then
+    Begin
+      // T Check
+      Vptr := Pos('T', SynEdit.lines[I]);
+      If Vptr <> 0 Then
+      Begin
+        NumEnd := FindNumEnd(SynEdit.lines[I], Vptr + 1);
+        Nstr := Copy(SynEdit.lines[I], Vptr + 1, NumEnd - Vptr);
+        If Nstr = '' Then
+        Begin
+          exit
+        End;
+        Nvl := StrToFloat(Nstr);
+        Case frmTR.RGrpFunc.ItemIndex Of
+          0:
+            Begin
+              Nvl := Nvl + CVal
+            End; // add
+          1:
+            Begin
+              Nvl := Nvl - CVal
+            End; // subtract
+          2:
+            Begin
+              Nvl := Nvl * CVal
+            End; // multiply
+        End;
+        Nstr := FloatToStrF(Nvl, ffGeneral, 4, 0);
+        LCpy := SynEdit.lines[I];
+        Delete(LCpy, Vptr + 1, NumEnd - Vptr);
+        Vptr := Pos('T', LCpy);
+        Insert(Nstr, LCpy, Vptr + 1);
+        SynEdit.lines[I] := LCpy;
+      End; // end T check
+      If frmTR.RGrpMD.ItemIndex > 0 Then
+      Begin
+        // H check
+        Vptr := Pos('H', SynEdit.lines[I]);
+        If Vptr <> 0 Then
+        Begin
+          NumEnd := FindNumEnd(SynEdit.lines[I], Vptr + 1);
+          Nstr := Copy(SynEdit.lines[I], Vptr + 1, NumEnd - Vptr);
+          If Nstr = '' Then
+          Begin
+            exit
+          End;
+          Nvl := StrToFloat(Nstr);
+          Case frmTR.RGrpFunc.ItemIndex Of
+            0:
+              Begin
+                Nvl := Nvl + CVal
+              End; // add
+            1:
+              Begin
+                Nvl := Nvl - CVal
+              End; // subtract
+            2:
+              Begin
+                Nvl := Nvl * CVal
+              End; // multiply
+          End;
+          Nstr := FloatToStrF(Nvl, ffGeneral, 4, 0);
+          LCpy := SynEdit.lines[I];
+          Delete(LCpy, Vptr + 1, NumEnd - Vptr);
+          Vptr := Pos('H', LCpy);
+          Insert(Nstr, LCpy, Vptr + 1);
+          SynEdit.lines[I] := LCpy;
+        End; // end H check
+        // D Check
+        Vptr := Pos('D', SynEdit.lines[I]);
+        If Vptr <> 0 Then
+        Begin
+          NumEnd := FindNumEnd(SynEdit.lines[I], Vptr + 1);
+          Nstr := Copy(SynEdit.lines[I], Vptr + 1, NumEnd - Vptr);
+          If Nstr = '' Then
+          Begin
+            exit
+          End;
+          Nvl := StrToFloat(Nstr);
+          Case frmTR.RGrpFunc.ItemIndex Of
+            0:
+              Begin
+                Nvl := Nvl + CVal
+              End; // add
+            1:
+              Begin
+                Nvl := Nvl - CVal
+              End; // subtract
+            2:
+              Begin
+                Nvl := Nvl * CVal
+              End; // multiply
+          End;
+          Nstr := FloatToStrF(Nvl, ffGeneral, 4, 0);
+          LCpy := SynEdit.lines[I];
+          Delete(LCpy, Vptr + 1, NumEnd - Vptr);
+          Vptr := Pos('D', LCpy);
+          Insert(Nstr, LCpy, Vptr + 1);
+          SynEdit.lines[I] := LCpy;
+        End; // end D check
+      End; // H and D option check
+    End; // toolsheet check
+  End; // loop
+End;
 
 end.

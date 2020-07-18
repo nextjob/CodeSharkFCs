@@ -44,3 +44,8 @@
 VirtualTreeView.zip
 *.#00
 *.pch
+
+# Misc Folders  #
+###################
+/Doc
+/platforms

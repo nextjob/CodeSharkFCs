@@ -133,6 +133,7 @@ object FrmMain: TFrmMain
     Font.Quality = fqClearTypeNatural
     PopupMenu = PopupActionBar1
     TabOrder = 3
+    OnKeyPress = SynEditKeyPress
     CodeFolding.GutterShapeSize = 11
     CodeFolding.CollapsedLineColor = clGrayText
     CodeFolding.FolderBarLinesColor = clGrayText
@@ -175,17 +176,24 @@ object FrmMain: TFrmMain
                 Caption = '-'
               end
               item
-                Action = FilePrintSetup1
+                Action = MiniEdit
+                Caption = '&MiniEdit'
               end
               item
-                Action = FilePageSetup1
-                Caption = 'Pa&ge Setup...'
+                Caption = '-'
+              end
+              item
+                Action = FilePrintSetup1
               end
               item
                 Action = DialogPrintDlg1
                 Caption = 'P&rint...'
                 ImageIndex = 14
                 ShortCut = 16464
+              end
+              item
+                Action = FilePageSetup1
+                Caption = 'Pa&ge Setup...'
               end
               item
                 Caption = '-'
@@ -283,6 +291,22 @@ object FrmMain: TFrmMain
           item
             Items = <
               item
+                Action = SeqNumbers
+                Caption = '&Sequence Numbers'
+              end
+              item
+                Action = RemoveSpaces
+                Caption = '&Remove Spaces'
+              end
+              item
+                Action = ToolRenumber
+                Caption = '&Tool Renumber'
+              end>
+            Caption = '&Tools'
+          end
+          item
+            Items = <
+              item
                 Action = About
                 Caption = '&About'
               end>
@@ -314,6 +338,12 @@ object FrmMain: TFrmMain
       Hint = 'Save As|Saves the active file with a new name'
       ImageIndex = 30
       OnAccept = FileSaveAs1Accept
+    end
+    object MiniEdit: TAction
+      Category = 'File'
+      Caption = 'MiniEdit'
+      Enabled = False
+      OnExecute = MiniEditExecute
     end
     object FilePrintSetup1: TFilePrintSetup
       Category = 'File'
@@ -459,6 +489,21 @@ object FrmMain: TFrmMain
       Category = 'Settings'
       Caption = 'ProgramSettings'
       OnExecute = ProgramSettingsExecute
+    end
+    object RemoveSpaces: TAction
+      Category = 'Tools'
+      Caption = 'Remove Spaces'
+      OnExecute = RemoveSpacesExecute
+    end
+    object SeqNumbers: TAction
+      Category = 'Tools'
+      Caption = 'Sequence Numbers'
+      OnExecute = SeqNumbersExecute
+    end
+    object ToolRenumber: TAction
+      Category = 'Tools'
+      Caption = 'Tool Renumber'
+      OnExecute = ToolRenumberExecute
     end
   end
   object PopupActionBar1: TPopupActionBar

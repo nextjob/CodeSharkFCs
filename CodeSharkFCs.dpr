@@ -20,7 +20,9 @@ uses
   tsttrm in 'tsttrm.pas' {FrmTrm},
   dlgConfirmReplace in 'dlgConfirmReplace.pas' {ConfirmReplaceDialog},
   dlgReplaceText in 'dlgReplaceText.pas',
-  dlgSearchText in 'dlgSearchText.pas' {TextSearchDialog};
+  dlgSearchText in 'dlgSearchText.pas' {TextSearchDialog},
+  tnum in 'tnum.pas' {FrmTR},
+  lnum in 'lnum.pas' {FrmLN};
 
 {$R *.res}
 
@@ -39,6 +41,8 @@ begin
   Application.CreateForm(TFrmPortClsTm, FrmPortClsTm);
   Application.CreateForm(TFrmTrm, FrmTrm);
   Application.CreateForm(TConfirmReplaceDialog, ConfirmReplaceDialog);
+  Application.CreateForm(TFrmTR, FrmTR);
+  Application.CreateForm(TFrmLN, FrmLN);
   Application.Run;
 
 end.

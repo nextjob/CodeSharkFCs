@@ -43,6 +43,7 @@ type
     ViewTraceBtn: TButton;
     ViewHistBtn: TButton;
     TestTermBtn: TButton;
+    ForceUpperCaseCB: TCheckBox;
 
     procedure FileExtLBXClick(Sender: TObject);
     procedure GutterCBClick(Sender: TObject);

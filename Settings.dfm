@@ -25,9 +25,6 @@ object FrmSettings: TFrmSettings
     object TabSheet1: TTabSheet
       Caption = 'Editor Options'
       ExplicitLeft = 0
-      ExplicitTop = 0
-      ExplicitWidth = 0
-      ExplicitHeight = 0
       object FileExtLBL: TLabel
         Left = 216
         Top = 7
@@ -55,7 +52,7 @@ object FrmSettings: TFrmSettings
       end
       object FilterPanel: TPanel
         Left = 0
-        Top = 69
+        Top = 99
         Width = 361
         Height = 100
         Alignment = taLeftJustify
@@ -131,14 +128,18 @@ object FrmSettings: TFrmSettings
         TabOrder = 3
         OnClick = FileExtLBXClick
       end
+      object ForceUpperCaseCB: TCheckBox
+        Left = 3
+        Top = 64
+        Width = 107
+        Height = 17
+        Caption = 'Force Upper Case'
+        TabOrder = 4
+      end
     end
     object TabSheet2: TTabSheet
       Caption = 'Misc'
       ImageIndex = 1
-      ExplicitLeft = 0
-      ExplicitTop = 0
-      ExplicitWidth = 0
-      ExplicitHeight = 0
       object TracingCB: TCheckBox
         Left = 16
         Top = 83
