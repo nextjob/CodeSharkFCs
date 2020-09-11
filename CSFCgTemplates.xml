@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ds>
+    <Folders>
+        <Folder>
+            <folder_name>Mill 1</folder_name> 
+			<Items>
+				<Item>	
+					<item_name>Start</item_name>
+					<item_type>static</item_type> 
+					<item_text>G0 G17 G40 G49 G53 G80 G90 Z0</item_text>
+					<item_imageidx>1</item_imageidx>
+				</Item>
+				<Item>	
+					<item_name>Stop</item_name> 
+					<item_type>static</item_type>
+					<item_text>M0</item_text>
+					<item_imageidx>3</item_imageidx>
+				</Item>
+				<Item>	
+					<item_name>End</item_name>
+					<item_type>static</item_type>
+					<item_text>G0 G80 G90 Z4. M9\nG91 G28  Z0\nG91 G28  X0\nG91 G30  Y0  B0\nG90\nM1\nM6\nM30\n%</item_text>
+					<item_imageidx>18</item_imageidx>
+				</Item>
+				<Item>	
+					<item_name>mywidget</item_name>
+					<item_type>pyscript</item_type>
+					<item_text>import mywidget; myDialog = mywidget.createMove()</item_text>
+					<item_imageidx>25</item_imageidx>
+				</Item>
+			</Items>
+		</Folder>
+		<Folder>
+            <folder_name>Mill 2</folder_name> 
+			<Items>
+				<Item>	
+					<item_name>Start</item_name>
+					<item_type>static</item_type>
+					<item_text>G00 G40 G49 G20 G90 </item_text>
+					<item_imageidx>1</item_imageidx>
+				</Item>
+				<Item>	
+					<item_name>Stop</item_name>
+					<item_type>static</item_type>
+					<item_text>M0</item_text>
+					<item_imageidx>3</item_imageidx>
+				</Item>
+			</Items>
+		</Folder>
+    </Folders>
+</ds>

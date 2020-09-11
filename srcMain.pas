@@ -30,7 +30,7 @@ uses
   System.ImageList,
   Vcl.ImgList, Vcl.ComCtrls, SynEditSearch, SynEditMiscClasses,
   SynEditRegexSearch, Vcl.ExtCtrls, AdPacket, AdProtcl, AdPStat, OoMisc, AdPort,
-  AwtPcl, AdSelCom, FreeCAD;
+  AwtPcl, AdSelCom, FreeCAD, ovcbase, o32lkout, ovcsplit, XMLDoc, XMLIntf;
 
 type
   TFrmMain = class(TForm)
@@ -92,7 +92,6 @@ type
     Receive: TAction;
     OpenOnReceive: TAction;
     New: TAction;
-    SynEdit: TSynEdit;
     ProgramSettings: TAction;
     ToolButtonFileOpen: TToolButton;
     SynEditRegexSearch: TSynEditRegexSearch;
@@ -100,6 +99,9 @@ type
     RemoveSpaces: TAction;
     SeqNumbers: TAction;
     ToolRenumber: TAction;
+    OvcSplitter1: TOvcSplitter;
+    O32LookoutBar1: TO32LookoutBar;
+    SynEdit: TSynEdit;
     procedure FileOpen1Accept(Sender: TObject);
     procedure FileSaveAs1Accept(Sender: TObject);
     procedure ActSaveExecute(Sender: TObject);
@@ -157,7 +159,10 @@ type
     Procedure AddLN;
     Procedure RmvLn;
     Function FindNumEnd(SearchSt: STRING; Strt: INTEGER): INTEGER;
-
+    procedure O32LookoutBar1ItemClick(Sender: TObject; Button: TMouseButton;
+      Shift: TShiftState; Index: Integer);
+    procedure LoadLookoutBar(Sender: TObject);
+    Function ExeScript(ScriptLine : String): Boolean;
   private
     { Private declarations }
     FSearchFromCaret: Boolean;
@@ -172,6 +177,35 @@ type
     DefaultFileExtension: String;
     // Default File Extension used on open / save dialogs
   end;
+
+const
+  MyAppName = 'CodeSharkFCs';
+  AppDataName = PathDelim + MyAppName;
+  IniFileName = PathDelim + 'CodeSharkFCs.ini';
+  GTemplates =  PathDelim + 'CSFCgTemplates.xml';  //   -G Code template xml file
+  CurVersion = '0.09';
+
+  ApdModeFree = 0; // Not send or recieve in process
+  ApdModeSend = 1; // send in process
+  ApdModeRecv = 2; // receive in process
+
+  DialogFileExtensionFilter =
+    'G Code Files (*.G)|*.G|Tape Files (*.T)|*.T|Text Files (*.TXT)|*.TXT|NC Files (*.NC)|*.NC|Program Files (*.PRO)|*.PRO|All Files (*.*)|*.*';
+  // ini file sections
+  MainSection = 'Window';
+  FontSection = 'Font';
+  ColorsSection = 'Colors';
+  DefaultsSection = 'Defaults';
+  SetupSection = 'Setup';
+  SerialSection = 'SerialPort';
+  ProtocolSection = 'Protocol';
+  FilterSection = 'FileFilter';
+  NOF = '--nof--';
+
+  STextNotFound = 'Text not found';
+
+  O32LookoutBarGCodeMaxFolders = 20;
+  O32LookoutBarGCodeMaxItems = 20;
 
 var
   FrmMain: TFrmMain;
@@ -208,31 +242,10 @@ var
   gsReplaceText: string;
   gsReplaceTextHistory: string;
 
-const
-  MyAppName = 'CodeSharkFCs';
-  AppDataName = PathDelim + MyAppName;
-  IniFileName = PathDelim + 'CodeSharkFCs.ini';
+  // array to hold g code strings loaded into o32Lookoutbar (as read from CSFCgTemplates.xml -G Code template xml file)
+  O32LookoutBarGCodeText : array[0..O32LookoutBarGCodeMaxFolders-1, 0..O32LookoutBarGCodeMaxItems-1] of string;
+  O32LookoutBarGCodeType : array[0..O32LookoutBarGCodeMaxFolders-1, 0..O32LookoutBarGCodeMaxItems-1] of string;
 
-  CurVersion = '0.08';
-
-  ApdModeFree = 0; // Not send or recieve in process
-  ApdModeSend = 1; // send in process
-  ApdModeRecv = 2; // receive in process
-
-  DialogFileExtensionFilter =
-    'G Code Files (*.G)|*.G|Tape Files (*.T)|*.T|Text Files (*.TXT)|*.TXT|NC Files (*.NC)|*.NC|Program Files (*.PRO)|*.PRO|All Files (*.*)|*.*';
-  // ini file sections
-  MainSection = 'Window';
-  FontSection = 'Font';
-  ColorsSection = 'Colors';
-  DefaultsSection = 'Defaults';
-  SetupSection = 'Setup';
-  SerialSection = 'SerialPort';
-  ProtocolSection = 'Protocol';
-  FilterSection = 'FileFilter';
-  NOF = '--nof--';
-
-  STextNotFound = 'Text not found';
 
 implementation
 
@@ -244,6 +257,30 @@ uses
   dlgSearchText, dlgReplaceText, dlgConfirmReplace, plgSearchHighlighter,
   SynEditTypes, SynEditMiscProcs;
 
+Function FindScriptFileName(indata : String) : string;
+Var
+i, j  : integer;
+scriptName : String;
+
+begin
+  Result := '';
+  ScriptName := '';
+  i := Pos('import',indata);
+  if i > 0 then
+  // we found import, now pull off file name
+  begin
+    // from the character after 'import' to the end of the string, look for script file name (termimated by ';')
+    for j := i+6 to length(indata) do
+      if indata[j] = ' ' then
+      // space
+        continue
+      else if indata[j] = ';' then
+        break
+      else
+        scriptName := scriptName +  indata[j];
+     Result := scriptName;
+  end;
+end;
 
 Function TFrmMain.ParityChar: CHAR;
 Begin
@@ -560,6 +597,7 @@ begin
   //
   SetDefaultFileExtension;
   GutterExecute;
+  LoadLookoutBar(sender);
 end;
 
 Procedure TFrmMain.LoadIni(Inif: TCustomIniFile);
@@ -681,6 +719,77 @@ Begin
 
 End;
 
+ procedure TFrmMain.LoadLookoutBar(Sender: TObject);
+ //
+ // Procedure loads information from codeshark g code template file into the lookout bar
+ // allowing user defined canned g-code text to be entered into editor window
+ //
+var
+  XmlFile: TXMLDocument;
+  MainNode, FolderNode, ItemNode: IXMLNode;
+  folders, folder, items, item, imageIdx : Integer;
+  XMLPath: string;
+  FolderName, ItemName, ItemText, imageTxt, ItemType : String;
+begin
+  XMLPath := ExtractFileDir(Application.ExeName) + GTemplates;
+  UseLatestCommonDialogs:= false;
+  if Not fileexists(XMLPath) then
+    Showmessage(' G Code Templates File not found: ' + XMLPath)
+  Else
+  Begin
+    XmlFile := TXMLDocument.Create(Application);
+    try
+      XmlFile.LoadFromFile(XMLPath);
+      XmlFile.Active := True;
+
+
+      MainNode := XmlFile.DocumentElement;
+
+
+      folders := MainNode.ChildNodes['Folders'].ChildNodes.Count;
+      // dont overflow O32LookoutBarGCodeText array
+      if folders > O32LookoutBarGCodeMaxFolders  then
+        folders := O32LookoutBarGCodeMaxFolders;
+
+      for folder := 0 to folders - 1 do
+      begin
+        // new folder
+        FolderNode := MainNode.ChildNodes['Folders'].ChildNodes[folder];
+        // get name
+        FolderName :=   FolderNode.ChildNodes['folder_name'].Text ;
+        // add to lookout bar
+        O32LookoutBar1.InsertFolder(FolderName,folder);
+        // now add the item for this folde
+        Items     := FolderNode.ChildNodes['Items'].ChildNodes.Count;
+        // dont overflow O32LookoutBarGCodeText array
+        if Items > O32LookoutBarGCodeMaxItems then
+          Items :=  O32LookoutBarGCodeMaxItems;
+
+
+        for item:= 0 to ItemS - 1 do
+        begin
+          ItemNode := FolderNode.ChildNodes['Items'].ChildNodes[item];
+          ItemName := ItemNode.ChildNodes['item_name'].Text;
+          ItemType := ItemNode.ChildNodes['item_type'].Text;
+          ItemText := ItemNode.ChildNodes['item_text'].Text;
+          ImageTxt := ItemNode.ChildNodes['item_imageidx'].Text;
+          if TryStrToInt(ImageTxt, ImageIdx) then
+            O32LookoutBar1.InsertItem(ItemName,folder,item,ImageIdx)
+          else
+            O32LookoutBar1.InsertItem(ItemName,folder,item,-1);
+
+          O32LookoutBarGCodeText[folder,item] := ItemText;
+          O32LookoutBarGCodeType[folder,item] := ItemType;
+        end;
+      end;
+
+
+    finally
+      FreeAndNil(XmlFile);
+    end;
+  End;
+end;
+
 procedure TFrmMain.EnableOptions;
 Begin
   MiniEdit.Enabled := FileExists(IncludeTrailingBackSlash(ExtractFilePath(Application.exename)) +
@@ -723,6 +832,78 @@ begin
   EditFileNameWithPath := '';
   ShowFileName;
 end;
+
+procedure TFrmMain.O32LookoutBar1ItemClick(Sender: TObject;
+  Button: TMouseButton; Shift: TShiftState; Index: Integer);
+Var
+ InsertString : String;
+ SplittedString : TArray<String>;
+ i : integer;
+
+begin
+   // Is this a static or dynamic (python script) action?
+   if O32LookoutBarGCodeType[O32LookoutBar1.ActiveFolder,Index] = 'static' then
+   begin
+     InsertString :=  O32LookoutBarGCodeText[O32LookoutBar1.ActiveFolder,Index];
+     SplittedString := InsertString.Split(['\n']);
+     SynEdit.CaretX := 0;
+     for i := 0 to Length(SplittedString)-1 do
+     Begin
+       If SynEdit.Lines.Text = '' Then
+         SynEdit.Lines.Insert(0,SplittedString[i])
+       else
+         SynEdit.Lines.Insert(SynEdit.CaretY,SplittedString[i]);
+       SynEdit.CaretY := SynEdit.CaretY + 1;
+     End;
+   end
+   else if O32LookoutBarGCodeType[O32LookoutBar1.ActiveFolder,Index] = 'pyscript' then
+   // assume dynamic - python script
+   begin
+     ExeScript(O32LookoutBarGCodeText[O32LookoutBar1.ActiveFolder,Index]);
+   end
+   else
+    showmessage('Unknown User Def Type, ' + O32LookoutBarGCodeType[O32LookoutBar1.ActiveFolder,Index] + ' Folder: ' + IntTOStr(O32LookoutBar1.ActiveFolder) + ' Item: ' + IntToStr(Index));
+
+end;
+
+function TFrmMain.ExeScript(ScriptLine : String): Boolean;
+Var
+  ScriptFileName : String;
+begin
+  ScriptFileName := ExtractFilePath(Application.ExeName)+ FindScriptFileName(ScriptLine) + '.py';
+  if FileExists(ScriptFileName) then
+  Begin
+
+    if MyFreeCADFrm <> nil then
+    Begin
+
+      if FreeCad.FreeCADPid  > 0 then
+      Begin
+       // execute the script
+        try
+          //MaskFPUExceptions(True);
+          MyFreeCADFrm.PythonEngine1.ExecString(ScriptLine);
+        Except
+          on E: Exception do
+          begin
+            ShowMessage('Exception On Generate Path Script, class name = ' +
+              E.ClassName + #13#10 + 'Exception message = ' + E.Message);
+            Result := False;
+          end;
+
+        end;
+      End
+      else
+        ShowMessage('It does not appear that FreeCAD has been started, Cannot Execute Python Script');
+    End
+    else
+      ShowMessage('It does not appear that FreeCAD Interface has been created, Cannot Execute Python Script');
+    End
+    else
+      ShowMessage('Cannot Find Script File: ' + ScriptFileName + ', No Action Taken');
+end;
+
+
 
 procedure TFrmMain.OpenOnReceiveExecute(Sender: TObject);
 begin

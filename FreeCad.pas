@@ -190,6 +190,7 @@ type
     procedure FormShow(Sender: TObject);
     procedure btnPathShapesClick(Sender: TObject);
 
+
   private
     procedure WrtDebugInfo(Indata: Array of String);
     procedure WrtPoint(Indata: Array of String);
@@ -198,6 +199,7 @@ type
     procedure WrtArc(Indata: Array of String);
     procedure WrtArvMove(GCode, PosX, PosY, PosZ, CtrX, CtrY, CtrZ: String);
     procedure WrtUser(Id: Integer; Indata: Array of String);
+    procedure WrtToEditor(data: String);
     procedure OutPutPoint(PosX, PosY, PosZ: String);
     procedure SaveLastPoint(PosX, PosY, PosZ: String);
 
@@ -213,6 +215,7 @@ type
 
 var
   FreeCadFrm: TFreeCadFrm;
+  FreeCADPid: Integer; // PID of FreeCAD process, returned by  startup script
 
 implementation
 
@@ -273,7 +276,7 @@ var
   StartupLoaded, PanelViewLoaded, ObserverLoaded: Boolean;
   ScriptLns: TStringList;
   LastX, LastY, LastZ: String; // last point processed
-  FreeCADPid: Integer; // PID of FreeCAD process, returned by  startup script
+
   FreeCADScreenName : String;  //Name we will assign to FreeCAD window in LoadWindowScript
   FreeCADFound: Boolean;       // Our FreeCAD Screen Name Found with FindFreeCADWindow
 
@@ -336,7 +339,7 @@ Begin
             ('More Fields passed than expected, Unable to complete parsing' +
             CrLf + '(' + TempStr + ')');
           if SetFCparms.ExtraDebugging then
-            FrmMain.SynEdit.Lines.Add('(' + TempStr + ')');
+            FreeCadFrm.WrtToEditor('(' + TempStr + ')');
           Result := False;
           Exit;
         end;
@@ -387,7 +390,7 @@ Begin
   begin
     // add the path statements to the memo
     // for now all code dumps out in X1 data position
-    FrmMain.SynEdit.Lines.Add(Params[X1]);
+    FreeCadFrm.WrtToEditor(Params[X1]);
   end
 
   else
@@ -543,21 +546,21 @@ begin
 
   if srcMain.MyFreeCADFrm.cbIncludeZ.Checked then
     MemoLine := MemoLine + ' Z' + PosZ;
-  FrmMain.SynEdit.Lines.Add(MemoLine);
+  WrtToEditor(MemoLine);
   SaveLastPoint(PosX, PosY, PosZ);
 end;
 
 procedure TFreeCadFrm.WrtDebugInfo(Indata: Array of String);
 Begin
   // some debugging stuff
-  FrmMain.SynEdit.Lines.Add('(Last XYZ: ' + LastX + ' ' + LastY + ' ' +
+  WrtToEditor('(Last XYZ: ' + LastX + ' ' + LastY + ' ' +
     LastZ + ')');
-  FrmMain.SynEdit.Lines.Add('(Geo: ' + Indata[Geo] + ')');
-  FrmMain.SynEdit.Lines.Add('(XYZ1: ' + Indata[X1] + ' ' + Indata[Y1] + ' ' +
+  WrtToEditor('(Geo: ' + Indata[Geo] + ')');
+  WrtToEditor('(XYZ1: ' + Indata[X1] + ' ' + Indata[Y1] + ' ' +
     Indata[Z1] + ')');
-  FrmMain.SynEdit.Lines.Add('(XYZ2: ' + Indata[X2] + ' ' + Indata[Y2] + ' ' +
+  WrtToEditor('(XYZ2: ' + Indata[X2] + ' ' + Indata[Y2] + ' ' +
     Indata[Z2] + ')');
-  FrmMain.SynEdit.Lines.Add('(Rad:  ' + Indata[Rad] + ' Cntr XYZ: ' +
+  WrtToEditor('(Rad:  ' + Indata[Rad] + ' Cntr XYZ: ' +
     Indata[CtrX] + ' ' + Indata[CtrY] + ' ' + Indata[CtrZ] + ')');
 
 end;
@@ -654,7 +657,7 @@ Begin
     JPos := (strTofloat(LastY) - strTofloat(CtrY)) * -1.0; // same for y
     GCodeString := GCode + 'X' + PosX + 'Y' + PosY + 'I' + floatToStr(Ipos) +
       'J' + floatToStr(JPos);
-    FrmMain.SynEdit.Lines.Add(GCodeString);
+    WrtToEditor(GCodeString);
     SaveLastPoint(PosX, PosY, PosZ); // save ending postion
   Except
     // catch conversion issues here
@@ -668,7 +671,7 @@ End;
 procedure TFreeCadFrm.WrtUser(Id: Integer; Indata: Array of String);
 // user defined, for now we just add second passed parameter
 begin
-  FrmMain.SynEdit.Lines.Add(Indata[X1]);
+  WrtToEditor(Indata[X1]);
 end;
 
 { procedure TFreeCadFrm.XScriptClick(Sender: TObject);
@@ -680,6 +683,15 @@ end;
   ExeScript(ScriptLns);
   End;
   end; }
+
+procedure TFreeCadFrm.WrtToEditor(data: String);
+   Begin
+     If FrmMain.SynEdit.Lines.Text = '' Then
+       FrmMain.SynEdit.Lines.Insert(0,data)
+     else
+       FrmMain.SynEdit.Lines.Insert(FrmMain.SynEdit.CaretY,data);
+     FrmMain.SynEdit.CaretY := FrmMain.SynEdit.CaretY + 1;
+   End;
 
 procedure TFreeCadFrm.PythonModule1Initialization(Sender: TObject);
 begin
@@ -1442,7 +1454,7 @@ begin
   // 02/18/2020 when using  FreeCAD_0.19.19635_x64_Conda_Py3QT5-WinVS2015   it is back again!
   if not DirectoryExists(ExtractFilePath(ParamStr(0)) + PathDelim + 'platforms') then
     ShowMessage
-      ('Warning ... Due to QT5 issue, "platforms" directory must be copied from FreeCad ../bin/platforms to directory containing CodeSharkFC exe file, it was not found.');
+      ('Warning ... Due to QT5 issue on some platforms, "platforms" directory may need to be copied from FreeCad ../bin/platforms to directory containing CodeSharkFC exe file, it was not found.');
 {$ENDIF}
   //
   FrmMain.Cursor := crHourGlass;
