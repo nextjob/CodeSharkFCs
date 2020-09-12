@@ -61,4 +61,10 @@ Revision History
     FreeCad.pas & scrMain.pas 
     	Add ability for user defined static g code templates along with python (QT) dialogs to be executed from within CodeSharkFCs
  	Updated documentation to follow
+.10 
+    scrMain.pas
+        Add hot keys to send from editor, send from file and receive (CNC menu).
+        Updated documentation 
+        Include CodeSharkFCs.chm 
+
 	 

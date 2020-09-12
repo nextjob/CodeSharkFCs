@@ -3,7 +3,7 @@
 	<TITLE>Serial Communications</TITLE>
 	<META NAME="VIEWPORT" CONTENT="width=device-width">
 	<META NAME="AUTHOR" CONTENT="">
-	<META NAME="GENERATOR" CONTENT="HelpScribble 8.2.2">
+	<META NAME="GENERATOR" CONTENT="HelpScribble 8.3.0">
 	<STYLE> span { display: inline-block; }</STYLE>
 </HEAD>
 <BODY BGCOLOR="#FFFFFF" TEXT="#000000" LINK="#0000FF" VLINK="#800080" ALINK="#FF0000">
@@ -22,7 +22,7 @@
 <BR>
 <FONT FACE="Arial, helvetica, sans-serif" SIZE="3">There have been instances of CodeSharkFCs not sending out the last block of data to the receiving device. The problem appears to be</FONT><BR>
 <FONT FACE="Arial, helvetica, sans-serif" SIZE="3">that AsyncPro informs the controlling program (CodeSharkFCs) that file transmission is complete before that actual final characters are</FONT><BR>
-<FONT FACE="Arial, helvetica, sans-serif" SIZE="3"> transmitted out the device's or Window's i/o buffer.&nbsp; This results in CodeSharkFCs closing the serial port prior to the complete transmission&nbsp;</FONT><BR>
+<FONT FACE="Arial, helvetica, sans-serif" SIZE="3">&nbsp;transmitted out the device's or Window's i/o buffer.&nbsp; This results in CodeSharkFCs closing the serial port prior to the complete transmission&nbsp;</FONT><BR>
 <FONT FACE="Arial, helvetica, sans-serif" SIZE="3">of data. Once the serial port is closed, serial transmission stops. The Close Port Timeout setting has been added as a work around for this issue.&nbsp;</FONT><BR>
 <FONT FACE="Arial, helvetica, sans-serif" SIZE="3"><B>When using CodeSharkFCs for DNC, the user may need to adjust the timeout depending on the lenght of time need for the machine tool to complete&nbsp;</B></FONT><BR>
 <FONT FACE="Arial, helvetica, sans-serif" SIZE="3"><B>the final machining blocks.</B></FONT><BR>

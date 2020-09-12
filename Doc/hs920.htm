@@ -1,0 +1,65 @@
+<HTML><HEAD>
+	
+	<TITLE>Dynamic G Code</TITLE>
+	<META NAME="VIEWPORT" CONTENT="width=device-width">
+	<META NAME="AUTHOR" CONTENT="">
+	<META NAME="GENERATOR" CONTENT="HelpScribble 8.3.0">
+	<STYLE> span { display: inline-block; }</STYLE>
+</HEAD>
+<BODY BGCOLOR="#FFFFFF" TEXT="#000000" LINK="#0000FF" VLINK="#800080" ALINK="#FF0000">
+<P><FONT FACE="Arial, helvetica, sans-serif" SIZE="2">
+<A HREF="CodeSharkFC.html">Contents</A>
+ - <A HREF="idx.htm">Index</A>
+</FONT><HR></P>
+<FONT FACE="Arial, helvetica, sans-serif" COLOR="#0000FF" SIZE="5"><B>Dynamic G Code</B></FONT><BR>
+<BR>
+<FONT FACE="Arial, helvetica, sans-serif" SIZE="3">With dynamic G Code insertion, clicking on the appropriate icon results in a dialog being displayed.&nbsp; Once the dialog is successfully executed, the block of code is&nbsp; inserted after the current cursor line position.</FONT><BR>
+<BR>
+<FONT FACE="Arial, helvetica, sans-serif" COLOR="#800000" SIZE="3"><IMG SRC="PyScript1.PNG" BORDER="0"></FONT><BR>
+<BR>
+<FONT FACE="Arial, helvetica, sans-serif" COLOR="#800000" SIZE="3"><IMG SRC="PyScript2.PNG" BORDER="0"></FONT><BR>
+<BR>
+<FONT FACE="Arial, helvetica, sans-serif" COLOR="#800000" SIZE="3"><IMG SRC="PyScript3.PNG" BORDER="0"></FONT><BR>
+<BR>
+<FONT FACE="Arial, helvetica, sans-serif" SIZE="3">The CSFCgTemplates.XML node &lt;Item&gt; that defines this dynamic dialog:</FONT><BR>
+<BR>
+<FONT FACE="Arial, helvetica, sans-serif" SIZE="3">&lt;Folder&gt;</FONT><BR>
+<FONT FACE="Arial, helvetica, sans-serif" SIZE="3">&nbsp;&nbsp;&nbsp; &lt;folder_name&gt;Mill 2&lt;/folder_name&gt;&nbsp;</FONT><BR>
+<FONT FACE="Arial, helvetica, sans-serif" SIZE="3">&nbsp;&nbsp;&nbsp; &lt;Items&gt;</FONT><BR>
+<FONT FACE="Arial, helvetica, sans-serif" SIZE="3">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; .</FONT><BR>
+<FONT FACE="Arial, helvetica, sans-serif" SIZE="3">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; .</FONT><BR>
+<FONT FACE="Arial, helvetica, sans-serif" SIZE="2">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; .</FONT><BR>
+<BR>
+<FONT FACE="Arial, helvetica, sans-serif" SIZE="3">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &lt;Item&gt;&nbsp;</FONT><BR>
+<FONT FACE="Arial, helvetica, sans-serif" SIZE="3">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &lt;item_name&gt;mywidget&lt;/item_name&gt;</FONT><BR>
+<FONT FACE="Arial, helvetica, sans-serif" SIZE="3">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &lt;item_type&gt;pyscript&lt;/item_type&gt;</FONT><BR>
+<FONT FACE="Arial, helvetica, sans-serif" SIZE="3">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &lt;item_text&gt;import mywidget; myDialog = mywidget.createMove()&lt;/item_text&gt;</FONT><BR>
+<FONT FACE="Arial, helvetica, sans-serif" SIZE="3">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &lt;item_imageidx&gt;25&lt;/item_imageidx&gt;</FONT><BR>
+<FONT FACE="Arial, helvetica, sans-serif" SIZE="3">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &lt;/Item&gt;</FONT><BR>
+<FONT FACE="Arial, helvetica, sans-serif" SIZE="3">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; .</FONT><BR>
+<FONT FACE="Arial, helvetica, sans-serif" SIZE="3">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; .</FONT><BR>
+<FONT FACE="Arial, helvetica, sans-serif" SIZE="2">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; .</FONT><BR>
+<BR>
+<FONT FACE="Arial, helvetica, sans-serif" SIZE="3"><B>&lt;item_name&gt;mywidget&lt;/item_name&gt;</B></FONT><BR>
+<FONT FACE="Arial, helvetica, sans-serif" SIZE="3">This defines the icon name displayed in the user interface.</FONT><BR>
+<BR>
+<FONT FACE="Arial, helvetica, sans-serif" SIZE="3"><B>&lt;item_type</B>&gt;<B>pyscript&lt;/item_type&gt;</B></FONT><BR>
+<FONT FACE="Arial, helvetica, sans-serif" SIZE="3">This defines this element as a dynamic dialog.</FONT><BR>
+<BR>
+<FONT FACE="Arial, helvetica, sans-serif" SIZE="3"><B>&lt;item_text&gt;import mywidget; myDialog = mywidget.createMove()&lt;/item_text&gt;</B></FONT><BR>
+<FONT FACE="Arial, helvetica, sans-serif" SIZE="3">This is the script that is passed to the python interpreter, it imports module mywidget (file mywidget.py) and then creates the dialog ( myDialog = mywidget.createMove()).</FONT><BR>
+<FONT FACE="Arial, helvetica, sans-serif" SIZE="4"><B>CodeSharkFCs expects to find the python script file in the same directory as the CodeSharkFCs executable file.</B></FONT><BR>
+<FONT FACE="Arial, helvetica, sans-serif" SIZE="3">See </FONT><FONT FACE="Arial, helvetica, sans-serif" SIZE="3"><A HREF="hs1000.htm">Dynamic G Code Dialog Creation</A></FONT><FONT FACE="Arial, helvetica, sans-serif" COLOR="#800000" SIZE="2"> </FONT><FONT FACE="Arial, helvetica, sans-serif" SIZE="3">for more information.</FONT><BR>
+<BR>
+<FONT FACE="Arial, helvetica, sans-serif" SIZE="3"><B>&lt;item_imageidx&gt;25&lt;/item_imageidx&gt;</B></FONT><BR>
+<FONT FACE="Arial, helvetica, sans-serif" SIZE="3">This element defines the image displayed in the user interface.&nbsp; It is an index into a delphi imagelist.</FONT><BR>
+<BR>
+<BR>
+<BR>
+<FONT FACE="Arial, helvetica, sans-serif" SIZE="3">See&nbsp; </FONT><FONT FACE="Arial, helvetica, sans-serif" SIZE="3"><A HREF="hs930.htm">CSFCgTemplates.XML File</A></FONT><FONT FACE="Arial, helvetica, sans-serif" COLOR="#800000" SIZE="3">&nbsp;</FONT><FONT FACE="Arial, helvetica, sans-serif" SIZE="3"> for more information.</FONT><BR>
+<BR>
+<FONT FACE="Arial, helvetica, sans-serif" SIZE="3"><A HREF="hs900.htm">G Code Templates</A></FONT><BR>
+<BR>
+<FONT FACE="Arial, helvetica, sans-serif" SIZE="3"><A HREF="hs100.htm">Home</A></FONT><FONT FACE="Arial, helvetica, sans-serif" COLOR="#800000" SIZE="3">
+</FONT>
+</BODY></HTML>

@@ -1,0 +1,62 @@
+<HTML><HEAD>
+	
+	<TITLE>Static G Code </TITLE>
+	<META NAME="VIEWPORT" CONTENT="width=device-width">
+	<META NAME="AUTHOR" CONTENT="">
+	<META NAME="GENERATOR" CONTENT="HelpScribble 8.3.0">
+	<STYLE> span { display: inline-block; }</STYLE>
+</HEAD>
+<BODY BGCOLOR="#FFFFFF" TEXT="#000000" LINK="#0000FF" VLINK="#800080" ALINK="#FF0000">
+<P><FONT FACE="Arial, helvetica, sans-serif" SIZE="2">
+<A HREF="CodeSharkFC.html">Contents</A>
+ - <A HREF="idx.htm">Index</A>
+</FONT><HR></P>
+<FONT FACE="Arial, helvetica, sans-serif" COLOR="#0000FF" SIZE="5"><B>Static G Code&nbsp;</B></FONT><BR>
+<BR>
+<FONT FACE="Arial, helvetica, sans-serif" SIZE="3">With static G Code insertion, clicking on the appropriate icon results in a static block of code being inserted into the editor after the current cursor line position.</FONT><BR>
+<BR>
+<FONT FACE="Arial, helvetica, sans-serif" COLOR="#800000" SIZE="3"><IMG SRC="GCodeTemplateClick.PNG" BORDER="0"></FONT><BR>
+<BR>
+<FONT FACE="Arial, helvetica, sans-serif" SIZE="3">The CSFCgTemplates.XML node &lt;Item&gt; that defines this static code:</FONT><BR>
+<BR>
+<FONT FACE="Arial, helvetica, sans-serif" SIZE="3">&lt;Folder&gt;</FONT><BR>
+<FONT FACE="Arial, helvetica, sans-serif" SIZE="3">&nbsp;&nbsp;&nbsp; &lt;folder_name&gt;Mill 2&lt;/folder_name&gt;&nbsp;</FONT><BR>
+<FONT FACE="Arial, helvetica, sans-serif" SIZE="3">&nbsp;&nbsp;&nbsp; &lt;Items&gt;</FONT><BR>
+<FONT FACE="Arial, helvetica, sans-serif" SIZE="3">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; .</FONT><BR>
+<FONT FACE="Arial, helvetica, sans-serif" SIZE="3">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; .</FONT><BR>
+<FONT FACE="Arial, helvetica, sans-serif" SIZE="2">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; .</FONT><BR>
+<BR>
+<FONT FACE="Arial, helvetica, sans-serif" SIZE="3">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &lt;Item&gt;&nbsp;</FONT><BR>
+<FONT FACE="Arial, helvetica, sans-serif" SIZE="3">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &lt;item_name&gt;Start&lt;/item_name&gt;</FONT><BR>
+<FONT FACE="Arial, helvetica, sans-serif" SIZE="3">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &lt;item_type&gt;static&lt;/item_type&gt;</FONT><BR>
+<FONT FACE="Arial, helvetica, sans-serif" SIZE="3">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &lt;item_text&gt;G00 G40 G49 G20 G90 &lt;/item_text&gt;</FONT><BR>
+<FONT FACE="Arial, helvetica, sans-serif" SIZE="3">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &lt;item_imageidx&gt;1&lt;/item_imageidx&gt;</FONT><BR>
+<FONT FACE="Arial, helvetica, sans-serif" SIZE="3">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &lt;/Item&gt;</FONT><BR>
+<FONT FACE="Arial, helvetica, sans-serif" SIZE="3">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; .</FONT><BR>
+<FONT FACE="Arial, helvetica, sans-serif" SIZE="3">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; .</FONT><BR>
+<FONT FACE="Arial, helvetica, sans-serif" SIZE="2">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; .</FONT><BR>
+<BR>
+<FONT FACE="Arial, helvetica, sans-serif" SIZE="3">Note the XML element </FONT><FONT FACE="Arial, helvetica, sans-serif" SIZE="3">:</FONT><BR>
+<BR>
+<FONT FACE="Arial, helvetica, sans-serif" SIZE="3"><B>&lt;item_name&gt;Start&lt;/item_name&gt;</B></FONT><BR>
+<FONT FACE="Arial, helvetica, sans-serif" SIZE="3">This defines the icon name displayed in the user interface.</FONT><BR>
+<BR>
+<FONT FACE="Arial, helvetica, sans-serif" SIZE="3"><B>&lt;item_type&gt;static&lt;/item_type&gt;</B></FONT><BR>
+<FONT FACE="Arial, helvetica, sans-serif" SIZE="3">This defines this element as a static text to insert.</FONT><BR>
+<BR>
+<FONT FACE="Arial, helvetica, sans-serif" SIZE="3"><B>&lt;item_text&gt;G00 G40 G49 G20 G90 &lt;/item_text&gt;</B> .</FONT><BR>
+<FONT FACE="Arial, helvetica, sans-serif" SIZE="3">This element defines the static text that will be inserted into the editor.</FONT><BR>
+<FONT FACE="Arial, helvetica, sans-serif" SIZE="3">To add multiple lines insert "\n" were you desire new lines.</FONT><BR>
+<FONT FACE="Arial, helvetica, sans-serif" SIZE="3">Example:</FONT><BR>
+<FONT FACE="Arial, helvetica, sans-serif" SIZE="3">&lt;item_text&gt;G0 G80 G90 Z4. M9\nG91 G28 Z0\nG91 G28 X0\nG91 G30 Y0 B0\nG90\nM1\nM6\nM30\n%&lt;/item_text&gt;</FONT><BR>
+<BR>
+<FONT FACE="Arial, helvetica, sans-serif" SIZE="3"><B>&lt;item_imageidx&gt;1&lt;/item_imageidx&gt;</B></FONT><BR>
+<FONT FACE="Arial, helvetica, sans-serif" SIZE="3">This element defines the image displayed in the user interface.&nbsp; It is an index into a delphi imagelist.</FONT><BR>
+<BR>
+<FONT FACE="Arial, helvetica, sans-serif" SIZE="3">See&nbsp; </FONT><FONT FACE="Arial, helvetica, sans-serif" SIZE="3"><A HREF="hs930.htm">CSFCgTemplates.XML File</A></FONT><FONT FACE="Arial, helvetica, sans-serif" COLOR="#800000" SIZE="3">&nbsp;</FONT><FONT FACE="Arial, helvetica, sans-serif" SIZE="3"> for more information.</FONT><BR>
+<BR>
+<FONT FACE="Arial, helvetica, sans-serif" SIZE="3"><A HREF="hs900.htm">G Code Templates</A></FONT><BR>
+<BR>
+<FONT FACE="Arial, helvetica, sans-serif" SIZE="3"><A HREF="hs100.htm">Home</A></FONT><FONT FACE="Arial, helvetica, sans-serif" COLOR="#800000" SIZE="3">
+</FONT>
+</BODY></HTML>

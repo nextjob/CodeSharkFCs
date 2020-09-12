@@ -1,0 +1,94 @@
+<HTML><HEAD>
+	
+	<TITLE>Dynamic G Code Dialog Creation</TITLE>
+	<META NAME="VIEWPORT" CONTENT="width=device-width">
+	<META NAME="AUTHOR" CONTENT="">
+	<META NAME="GENERATOR" CONTENT="HelpScribble 8.3.0">
+	<STYLE> span { display: inline-block; }</STYLE>
+</HEAD>
+<BODY BGCOLOR="#FFFFFF" TEXT="#000000" LINK="#0000FF" VLINK="#800080" ALINK="#FF0000">
+<P><FONT FACE="Arial, helvetica, sans-serif" SIZE="2">
+<A HREF="CodeSharkFC.html">Contents</A>
+ - <A HREF="idx.htm">Index</A>
+</FONT><HR></P>
+<FONT FACE="Arial, helvetica, sans-serif" COLOR="#0000FF" SIZE="5"><B>Dynamic G Code Dialog Creation</B></FONT><BR>
+<BR>
+<FONT FACE="Arial, helvetica, sans-serif" SIZE="3">Below is the complete sample python script&nbsp; mywidget.py&nbsp; file that is included with the CodeSharkFCs download:</FONT><BR>
+<FONT FACE="Arial, helvetica, sans-serif" SIZE="3">This dialog allows for user entry of an X and Y coordinate position. When the user clicks on create, the g code move is written to the editor.</FONT><BR>
+<FONT FACE="Arial, helvetica, sans-serif" SIZE="3">This dialog is based on the sample found here: https://wiki.freecadweb.org/Dialog_creation</FONT><BR>
+<BR>
+<FONT FACE="Arial, helvetica, sans-serif" SIZE="3"># sample dialog&nbsp;</FONT><BR>
+<FONT FACE="Arial, helvetica, sans-serif" SIZE="3"># see https://wiki.freecadweb.org/Dialog_creation</FONT><BR>
+<FONT FACE="Arial, helvetica, sans-serif" SIZE="3"># to use:</FONT><BR>
+<FONT FACE="Arial, helvetica, sans-serif" SIZE="3"># import mywidget</FONT><BR>
+<FONT FACE="Arial, helvetica, sans-serif" SIZE="3"># myDialog = mywidget.createMove()</FONT><BR>
+<BR>
+<FONT FACE="Arial, helvetica, sans-serif" SIZE="3">from PySide import QtCore, QtGui</FONT><BR>
+<FONT FACE="Arial, helvetica, sans-serif" SIZE="3">import FreeCAD</FONT><BR>
+<FONT FACE="Arial, helvetica, sans-serif" SIZE="3">import CaptureFC&nbsp;</FONT><BR>
+<BR>
+<FONT FACE="Arial, helvetica, sans-serif" SIZE="3">class Ui_Dialog(object):</FONT><BR>
+<FONT FACE="Arial, helvetica, sans-serif" SIZE="3">&nbsp;&nbsp; def setupUi(self, Dialog):</FONT><BR>
+<FONT FACE="Arial, helvetica, sans-serif" SIZE="3">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Dialog.setObjectName("Dialog")</FONT><BR>
+<FONT FACE="Arial, helvetica, sans-serif" SIZE="3">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Dialog.resize(187, 178)</FONT><BR>
+<FONT FACE="Arial, helvetica, sans-serif" SIZE="3">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; self.title = QtGui.QLabel(Dialog)</FONT><BR>
+<FONT FACE="Arial, helvetica, sans-serif" SIZE="3">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; self.title.setGeometry(QtCore.QRect(10, 10, 271, 16))</FONT><BR>
+<FONT FACE="Arial, helvetica, sans-serif" SIZE="3">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; self.title.setObjectName("title")</FONT><BR>
+<FONT FACE="Arial, helvetica, sans-serif" SIZE="3">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; self.label_xlabel = QtGui.QLabel(Dialog)</FONT><BR>
+<FONT FACE="Arial, helvetica, sans-serif" SIZE="3">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; self.label_xlabel.setGeometry(QtCore.QRect(10, 50, 57, 16))</FONT><BR>
+<FONT FACE="Arial, helvetica, sans-serif" SIZE="3">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; self.label_xlabel.setObjectName("label_x")</FONT><BR>
+<FONT FACE="Arial, helvetica, sans-serif" SIZE="3">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; self.label_ylabel = QtGui.QLabel(Dialog)</FONT><BR>
+<FONT FACE="Arial, helvetica, sans-serif" SIZE="3">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; self.label_ylabel.setGeometry(QtCore.QRect(10, 90, 57, 16))</FONT><BR>
+<FONT FACE="Arial, helvetica, sans-serif" SIZE="3">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; self.label_ylabel.setObjectName("label_y")</FONT><BR>
+<FONT FACE="Arial, helvetica, sans-serif" SIZE="3">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; self.xpos = QtGui.QLineEdit(Dialog)</FONT><BR>
+<FONT FACE="Arial, helvetica, sans-serif" SIZE="3">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; self.xpos.setGeometry(QtCore.QRect(60, 40, 111, 26))</FONT><BR>
+<FONT FACE="Arial, helvetica, sans-serif" SIZE="3">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; self.xpos.setObjectName("pos_x")</FONT><BR>
+<FONT FACE="Arial, helvetica, sans-serif" SIZE="3">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; self.ypos = QtGui.QLineEdit(Dialog)</FONT><BR>
+<FONT FACE="Arial, helvetica, sans-serif" SIZE="3">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; self.ypos.setGeometry(QtCore.QRect(60, 80, 111, 26))</FONT><BR>
+<FONT FACE="Arial, helvetica, sans-serif" SIZE="3">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; self.ypos.setObjectName("Pos_y")</FONT><BR>
+<FONT FACE="Arial, helvetica, sans-serif" SIZE="3">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; self.create = QtGui.QPushButton(Dialog)</FONT><BR>
+<FONT FACE="Arial, helvetica, sans-serif" SIZE="3">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; self.create.setGeometry(QtCore.QRect(50, 140, 83, 26))</FONT><BR>
+<FONT FACE="Arial, helvetica, sans-serif" SIZE="3">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; self.create.setObjectName("create")</FONT><BR>
+<BR>
+<FONT FACE="Arial, helvetica, sans-serif" SIZE="3">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; self.retranslateUi(Dialog)</FONT><BR>
+<FONT FACE="Arial, helvetica, sans-serif" SIZE="3">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; QtCore.QObject.connect(self.create,QtCore.SIGNAL("pressed()"),self.createMove)</FONT><BR>
+<FONT FACE="Arial, helvetica, sans-serif" SIZE="3">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; QtCore.QMetaObject.connectSlotsByName(Dialog)</FONT><BR>
+<BR>
+<FONT FACE="Arial, helvetica, sans-serif" SIZE="3">&nbsp;&nbsp; def retranslateUi(self, Dialog):</FONT><BR>
+<FONT FACE="Arial, helvetica, sans-serif" SIZE="3">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Dialog.setWindowTitle("Dialog")</FONT><BR>
+<FONT FACE="Arial, helvetica, sans-serif" SIZE="3">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; self.title.setText("GCode Move")</FONT><BR>
+<FONT FACE="Arial, helvetica, sans-serif" SIZE="3">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; self.label_xlabel.setText("X Position")</FONT><BR>
+<FONT FACE="Arial, helvetica, sans-serif" SIZE="3">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; self.label_ylabel.setText("Y Position")</FONT><BR>
+<FONT FACE="Arial, helvetica, sans-serif" SIZE="3">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; self.create.setText("Create!")</FONT><BR>
+<BR>
+<FONT FACE="Arial, helvetica, sans-serif" SIZE="3">&nbsp;&nbsp; def createMove(self):</FONT><BR>
+<FONT FACE="Arial, helvetica, sans-serif" SIZE="3">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; try:</FONT><BR>
+<FONT FACE="Arial, helvetica, sans-serif" SIZE="3">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # first we check if valid numbers have been entered</FONT><BR>
+<FONT FACE="Arial, helvetica, sans-serif" SIZE="3">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; x = float(self.xpos.text())</FONT><BR>
+<FONT FACE="Arial, helvetica, sans-serif" SIZE="3">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; y = float(self.ypos.text())</FONT><BR>
+<FONT FACE="Arial, helvetica, sans-serif" SIZE="3">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; except ValueError:</FONT><BR>
+<FONT FACE="Arial, helvetica, sans-serif" SIZE="3">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; print("Error! X&nbsp; and Y values must be valid numbers!")</FONT><BR>
+<FONT FACE="Arial, helvetica, sans-serif" SIZE="3">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; else:</FONT><BR>
+<FONT FACE="Arial, helvetica, sans-serif" SIZE="3">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # Send entry to editor&nbsp;</FONT><BR>
+<FONT FACE="Arial, helvetica, sans-serif" SIZE="3">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; gcodeln = 'G1 X' +&nbsp; self.xpos.text() + ' Y' + self.ypos.text()&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</FONT><BR>
+<FONT FACE="Arial, helvetica, sans-serif" SIZE="3">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; CaptureFC.WrtArgs('user1',gcodeln,'','','','','','','','','')</FONT><BR>
+<BR>
+<BR>
+<FONT FACE="Arial, helvetica, sans-serif" SIZE="3">class createMove():</FONT><BR>
+<FONT FACE="Arial, helvetica, sans-serif" SIZE="3">&nbsp; def __init__(self):</FONT><BR>
+<FONT FACE="Arial, helvetica, sans-serif" SIZE="3">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; self.d = QtGui.QWidget()</FONT><BR>
+<FONT FACE="Arial, helvetica, sans-serif" SIZE="3">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; self.ui = Ui_Dialog()</FONT><BR>
+<FONT FACE="Arial, helvetica, sans-serif" SIZE="3">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; self.ui.setupUi(self.d)</FONT><BR>
+<FONT FACE="Arial, helvetica, sans-serif" SIZE="3">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; self.d.show()</FONT><BR>
+<BR>
+<FONT FACE="Arial, helvetica, sans-serif" SIZE="3">Note the lines:</FONT><BR>
+<FONT FACE="Arial, helvetica, sans-serif" SIZE="3">import CaptureFC&nbsp;</FONT><BR>
+<FONT FACE="Arial, helvetica, sans-serif" SIZE="3">CaptureFC.WrtArgs('user1',gcodeln,'','','','','','','','','')</FONT><BR>
+<BR>
+<FONT FACE="Arial, helvetica, sans-serif" SIZE="3">CaptureFC is the python module built from source found in CodeSharkFCs unit scrMain.pas.&nbsp; Using python4delphi's&nbsp; TPythonModule this module is created and made available for import into the python interpereter. Module CaptureFC contains function WrtArgs, which "writes to the CodeSharkFCs editor".</FONT><BR>
+<BR>
+<FONT FACE="Arial, helvetica, sans-serif" SIZE="3"><A HREF="hs900.htm">G Code Templates</A></FONT><BR>
+<BR>
+<FONT FACE="Arial, helvetica, sans-serif" SIZE="3"><A HREF="hs100.htm">Home</A></FONT><FONT FACE="Arial, helvetica, sans-serif" COLOR="#800000" SIZE="3">
+</FONT>
+</BODY></HTML>

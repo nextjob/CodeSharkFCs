@@ -183,7 +183,7 @@ const
   AppDataName = PathDelim + MyAppName;
   IniFileName = PathDelim + 'CodeSharkFCs.ini';
   GTemplates =  PathDelim + 'CSFCgTemplates.xml';  //   -G Code template xml file
-  CurVersion = '0.09';
+  CurVersion = '0.10';
 
   ApdModeFree = 0; // Not send or recieve in process
   ApdModeSend = 1; // send in process

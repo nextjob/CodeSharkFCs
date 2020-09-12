@@ -190,6 +190,7 @@ object FrmMain: TFrmMain
         Gutter.Font.Name = 'Courier New'
         Gutter.Font.Style = []
         SearchEngine = SynEditSearch
+        ExplicitTop = -5
       end
     end
   end
@@ -317,14 +318,17 @@ object FrmMain: TFrmMain
               item
                 Action = SendFromEditor
                 Caption = 'S&end From Editor'
+                ShortCut = 8314
               end
               item
                 Action = SendFromFile
                 Caption = '&Send From File'
+                ShortCut = 122
               end
               item
                 Action = Receive
                 Caption = '&Receive'
+                ShortCut = 123
               end
               item
                 Action = OpenOnReceive
@@ -503,6 +507,7 @@ object FrmMain: TFrmMain
     object SendFromFile: TAction
       Category = 'CNC'
       Caption = 'Send From File'
+      ShortCut = 122
       OnExecute = SendFromFileExecute
     end
     object Action1: TAction
@@ -512,11 +517,13 @@ object FrmMain: TFrmMain
     object SendFromEditor: TAction
       Category = 'CNC'
       Caption = 'Send From Editor'
+      ShortCut = 8314
       OnExecute = SendFromEditorExecute
     end
     object Receive: TAction
       Category = 'CNC'
       Caption = 'Receive'
+      ShortCut = 123
       OnExecute = ReceiveExecute
     end
     object OpenOnReceive: TAction
