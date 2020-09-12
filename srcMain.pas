@@ -183,7 +183,7 @@ const
   AppDataName = PathDelim + MyAppName;
   IniFileName = PathDelim + 'CodeSharkFCs.ini';
   GTemplates =  PathDelim + 'CSFCgTemplates.xml';  //   -G Code template xml file
-  CurVersion = '0.10';
+  CurVersion = '0.11';
 
   ApdModeFree = 0; // Not send or recieve in process
   ApdModeSend = 1; // send in process
@@ -739,6 +739,7 @@ begin
   Begin
     XmlFile := TXMLDocument.Create(Application);
     try
+    try
       XmlFile.LoadFromFile(XMLPath);
       XmlFile.Active := True;
 
@@ -782,6 +783,9 @@ begin
           O32LookoutBarGCodeType[folder,item] := ItemType;
         end;
       end;
+    except
+      on E: Exception do ShowMessage('Problems Parsing ' + XMLPath + #13#10 +  E.Message);
+    end;
 
 
     finally

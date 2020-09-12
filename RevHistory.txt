@@ -66,5 +66,8 @@ Revision History
         Add hot keys to send from editor, send from file and receive (CNC menu).
         Updated documentation 
         Include CodeSharkFCs.chm 
+.11
+    scrMain.pas
+         Catch XML parsing exception. 
 
 	 
