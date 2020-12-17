@@ -69,5 +69,9 @@ Revision History
 .11
     scrMain.pas
          Catch XML parsing exception. 
-
-	 
+.12
+    All modules - change license to Unlicense For more information, please refer to <http://unlicense.org/>
+    scrMain.pas 
+        Add Plug Ins Menu item & File Compare plugin 
+    FreeCad.pas 
+        Update uses block to Vcl.PythonGUIInputOutput for latest Python4Delphi version

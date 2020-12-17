@@ -35,6 +35,7 @@ object FrmMain: TFrmMain
     Font.Name = 'Segoe UI'
     Font.Style = []
     Spacing = 0
+    ExplicitTop = -6
   end
   object ToolBarMain: TToolBar
     Left = 0
@@ -190,7 +191,6 @@ object FrmMain: TFrmMain
         Gutter.Font.Name = 'Courier New'
         Gutter.Font.Style = []
         SearchEngine = SynEditSearch
-        ExplicitTop = -5
       end
     end
   end
@@ -339,6 +339,13 @@ object FrmMain: TFrmMain
           item
             Items = <
               item
+                Action = FileCompare
+              end>
+            Caption = '&Plug Ins'
+          end
+          item
+            Items = <
+              item
                 Action = SeqNumbers
                 Caption = '&Sequence Numbers'
               end
@@ -362,7 +369,7 @@ object FrmMain: TFrmMain
           end>
         ActionBar = ActionMainMenuBar1
       end>
-    Left = 128
+    Left = 144
     Top = 72
     StyleName = 'Platform Default'
     object FileOpen1: TFileOpen
@@ -556,9 +563,14 @@ object FrmMain: TFrmMain
       Caption = 'Tool Renumber'
       OnExecute = ToolRenumberExecute
     end
+    object FileCompare: TAction
+      Category = 'Plug Ins'
+      Caption = 'File Compare'
+      OnExecute = FileCompareExecute
+    end
   end
   object PopupActionBar1: TPopupActionBar
-    Left = 200
+    Left = 232
     Top = 72
     object N1: TMenuItem
       Caption = '-'

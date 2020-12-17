@@ -1,18 +1,29 @@
 { This file is part of CodeSharkFCs
 
-  This source is free software; you can redistribute it and/or modify it under
-  the terms of the GNU General Public License as published by the Free
-  Software Foundation; either version 2 of the License, or (at your option)
-  any later version.
+This is free and unencumbered software released into the public domain.
 
-  This code is distributed in the hope that it will be useful, but WITHOUT ANY
-  WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
-  FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more
-  details.
+Anyone is free to copy, modify, publish, use, compile, sell, or
+distribute this software, either in source code form or as a compiled
+binary, for any purpose, commercial or non-commercial, and by any
+means.
 
-  A copy of the GNU General Public License is available on the World Wide Web
-  at <http://www.gnu.org/copyleft/gpl.html>. You can also obtain it by writing
-  to the Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor,Boston, MA 02110 USA
+In jurisdictions that recognize copyright laws, the author or authors
+of this software dedicate any and all copyright interest in the
+software to the public domain. We make this dedication for the benefit
+of the public at large and to the detriment of our heirs and
+successors. We intend this dedication to be an overt act of
+relinquishment in perpetuity of all present and future rights to this
+software under copyright law.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
+IN NO EVENT SHALL THE AUTHORS BE LIABLE FOR ANY CLAIM, DAMAGES OR
+OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE,
+ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
+OTHER DEALINGS IN THE SOFTWARE.
+
+For more information, please refer to <http://unlicense.org/>
 }
 unit about;
 
@@ -56,23 +67,29 @@ uses srcMain;
 
 procedure TAboutBox.FormActivate(Sender: TObject);
 begin
-  Aboutlbl.caption := 'This source is free software; ' + char(10) +
-    'you can redistribute it and /or modify it under' + char(10) +
-    'the terms of the GNU General Public License as published by the Free' +
-    char(10) +
-    'Software Foundation; either version 2 of the License, or (at your option) '
-    + char(10) + 'any later version. ' + char(10) + char(10) +
-    'This code is distributed in the hope that it will be useful, but WITHOUT ANY'
-    + char(10) +
-    'WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS'
-    + char(10) +
-    'FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more ' +
-    char(10) + 'details. ' + char(10) + char(10) +
-    'A copy of the GNU General Public License is available on the World Wide Web'
-    + char(10) +
-    'at <http://www.gnu.org/copyleft/gpl.html>. You can also obtain it by writing'
-    + char(10) +
-    'to the Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor,Boston, MA 02110 USA'
+  Aboutlbl.caption := 'This is free and unencumbered software released into the public domain. ' + char(10) +
+' Anyone is free to copy, modify, publish, use, compile, sell, or  '  + char(10) +
+'distribute this software, either in source code form or as a compiled '   + char(10) +
+'binary, for any purpose, commercial or non-commercial, and by any '   + char(10) +
+'means. '   + char(10) +
+'  '    + char(10) +
+'In jurisdictions that recognize copyright laws, the author or authors '   + char(10) +
+'of this software dedicate any and all copyright interest in the'     + char(10) +
+'software to the public domain. We make this dedication for the benefit '  + char(10) +
+'of the public at large and to the detriment of our heirs and '  + char(10) +
+'successors. We intend this dedication to be an overt act of '   + char(10) +
+'relinquishment in perpetuity of all present and future rights to this '  + char(10) +
+'software under copyright law.'  + char(10) +
+' '  + char(10) +
+'THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,'   + char(10) +
+'EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF'   + char(10) +
+'MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.'  + char(10) +
+'IN NO EVENT SHALL THE AUTHORS BE LIABLE FOR ANY CLAIM, DAMAGES OR'   + char(10) +
+'OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE,'  + char(10) +
+'ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE '   + char(10) +
+'OR OTHER DEALINGS IN THE SOFTWARE.'  + char(10) +
+' '   + char(10) +
+'For more information, please refer to <http://unlicense.org/> '
     + char(10) + char(10) +
     'This Program Is Built With and or utilizes the following modules / code' +
     char(10) + char(10) +

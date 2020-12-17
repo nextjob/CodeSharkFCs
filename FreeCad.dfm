@@ -185,7 +185,6 @@ object FreeCadFrm: TFreeCadFrm
     FatalMsgDlg = False
     UseLastKnownVersion = False
     AutoFinalize = False
-    IO = PythonGUIInputOutput1
     PyFlags = [pfIgnoreEnvironmentFlag]
     Left = 40
     Top = 448
@@ -198,18 +197,17 @@ object FreeCadFrm: TFreeCadFrm
     Left = 256
     Top = 448
   end
-  object PythonGUIInputOutput1: TPythonGUIInputOutput
-    UnicodeIO = True
-    RawOutput = False
-    Output = PyOutMemo
-    Left = 152
-    Top = 448
-  end
   object PythonDelphiVar1: TPythonDelphiVar
     Engine = PythonEngine1
     Module = '__main__'
     VarName = 'EdgeCnt'
     Left = 344
+    Top = 448
+  end
+  object PythonGUIInputOutput1: TPythonGUIInputOutput
+    UnicodeIO = True
+    RawOutput = False
+    Left = 144
     Top = 448
   end
 end
