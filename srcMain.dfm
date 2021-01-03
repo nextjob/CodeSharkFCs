@@ -35,7 +35,6 @@ object FrmMain: TFrmMain
     Font.Name = 'Segoe UI'
     Font.Style = []
     Spacing = 0
-    ExplicitTop = -6
   end
   object ToolBarMain: TToolBar
     Left = 0
@@ -191,6 +190,7 @@ object FrmMain: TFrmMain
         Gutter.Font.Name = 'Courier New'
         Gutter.Font.Style = []
         SearchEngine = SynEditSearch
+        OnPaintTransient = SynEditPaintTransient
       end
     end
   end
@@ -288,6 +288,10 @@ object FrmMain: TFrmMain
                 Action = DialogFontEdit1
               end
               item
+                Action = HLSettings
+                Caption = '&Highlighter'
+              end
+              item
                 Action = ProgramSettings
                 Caption = '&ProgramSettings'
               end>
@@ -340,6 +344,7 @@ object FrmMain: TFrmMain
             Items = <
               item
                 Action = FileCompare
+                Caption = '&File Compare'
               end>
             Caption = '&Plug Ins'
           end
@@ -567,6 +572,11 @@ object FrmMain: TFrmMain
       Category = 'Plug Ins'
       Caption = 'File Compare'
       OnExecute = FileCompareExecute
+    end
+    object HLSettings: TAction
+      Category = 'Settings'
+      Caption = 'Highlighter'
+      OnExecute = HLSettingsExecute
     end
   end
   object PopupActionBar1: TPopupActionBar

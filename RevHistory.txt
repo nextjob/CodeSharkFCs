@@ -75,3 +75,6 @@ Revision History
         Add Plug Ins Menu item & File Compare plugin 
     FreeCad.pas 
         Update uses block to Vcl.PythonGUIInputOutput for latest Python4Delphi version
+.13
+    scrMain, HighlightSettings, Settings
+        Add simple GCode Highlighting to Synedit window

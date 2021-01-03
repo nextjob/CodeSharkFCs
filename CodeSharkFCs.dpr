@@ -21,8 +21,9 @@ uses
   dlgConfirmReplace in 'dlgConfirmReplace.pas' {ConfirmReplaceDialog},
   dlgReplaceText in 'dlgReplaceText.pas',
   dlgSearchText in 'dlgSearchText.pas' {TextSearchDialog},
+  lnum in 'lnum.pas' {FrmLN},
   tnum in 'tnum.pas' {FrmTR},
-  lnum in 'lnum.pas' {FrmLN};
+  HighlightSettings in 'HighlightSettings.pas' {FrmHighlighter};
 
 {$R *.res}
 
@@ -41,8 +42,9 @@ begin
   Application.CreateForm(TFrmPortClsTm, FrmPortClsTm);
   Application.CreateForm(TFrmTrm, FrmTrm);
   Application.CreateForm(TConfirmReplaceDialog, ConfirmReplaceDialog);
-  Application.CreateForm(TFrmTR, FrmTR);
   Application.CreateForm(TFrmLN, FrmLN);
+  Application.CreateForm(TFrmTR, FrmTR);
+  Application.CreateForm(TFrmHighlighter, FrmHighlighter);
   Application.Run;
 
 end.

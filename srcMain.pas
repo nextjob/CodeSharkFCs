@@ -33,7 +33,7 @@ interface
 
 uses
   Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants,
-  System.Classes, Vcl.Graphics, System.IOUtils, IniFiles,
+  System.Classes, Vcl.Graphics, System.IOUtils, IniFiles,System.StrUtils,
   Vcl.Controls, Vcl.Forms, Vcl.Dialogs, SynEdit, Vcl.Menus, Vcl.StdActns,
   Vcl.ActnList, System.Actions, Vcl.ActnPopup, Vcl.ToolWin, Vcl.ActnMan,
   Vcl.ActnCtrls, Vcl.ActnMenus, Vcl.PlatformDefaultStyleActnCtrls, SynEditPrint,
@@ -113,6 +113,7 @@ type
     O32LookoutBar1: TO32LookoutBar;
     SynEdit: TSynEdit;
     FileCompare: TAction;
+    HLSettings: TAction;
     procedure FileOpen1Accept(Sender: TObject);
     procedure FileSaveAs1Accept(Sender: TObject);
     procedure ActSaveExecute(Sender: TObject);
@@ -175,6 +176,9 @@ type
     procedure LoadLookoutBar(Sender: TObject);
     Function ExeScript(ScriptLine : String): Boolean;
     procedure FileCompareExecute(Sender: TObject);
+    procedure SynEditPaintTransient(Sender: TObject; Canvas: TCanvas;
+  TransientType: TTransientType);
+    procedure HLSettingsExecute(Sender: TObject);
   private
     { Private declarations }
     FSearchFromCaret: Boolean;
@@ -195,7 +199,7 @@ const
   AppDataName = PathDelim + MyAppName;
   IniFileName = PathDelim + 'CodeSharkFCs.ini';
   GTemplates =  PathDelim + 'CSFCgTemplates.xml';  //   -G Code template xml file
-  CurVersion = '0.12';
+  CurVersion = '0.13';
 
   ApdModeFree = 0; // Not send or recieve in process
   ApdModeSend = 1; // send in process
@@ -212,12 +216,16 @@ const
   SerialSection = 'SerialPort';
   ProtocolSection = 'Protocol';
   FilterSection = 'FileFilter';
+  Highlighter = 'Highlighter';
+
   NOF = '--nof--';
 
   STextNotFound = 'Text not found';
 
   O32LookoutBarGCodeMaxFolders = 20;
   O32LookoutBarGCodeMaxItems = 20;
+
+  GcArraySz = 10;   // define size of arrays to hold g code highlighter info
 
 var
   FrmMain: TFrmMain;
@@ -257,14 +265,16 @@ var
   // array to hold g code strings loaded into o32Lookoutbar (as read from CSFCgTemplates.xml -G Code template xml file)
   O32LookoutBarGCodeText : array[0..O32LookoutBarGCodeMaxFolders-1, 0..O32LookoutBarGCodeMaxItems-1] of string;
   O32LookoutBarGCodeType : array[0..O32LookoutBarGCodeMaxFolders-1, 0..O32LookoutBarGCodeMaxItems-1] of string;
-
+   // for highlighting
+  GcHLStrings : array[1..GcArraySz] of String;
+  GcHLColors : array[1..GcArraySz] of TColor;
 
 implementation
 
 {$R *.DFM}
 
 uses
-  ShellAPI, ShlObj, SetFCparms,  About, PortClsTime,
+  ShellAPI, ShlObj, SetFCparms,  About, PortClsTime, HighlightSettings,
   cmset, ptops, Settings, AsciistatusU, SendRecvDlg, lnum, tnum,
   dlgSearchText, dlgReplaceText, dlgConfirmReplace, plgSearchHighlighter,
   SynEditTypes, SynEditMiscProcs;
@@ -359,6 +369,11 @@ procedure TFrmMain.GutterExecute;
 begin
   SynEdit.Gutter.Visible := FrmSettings.GutterCB.Checked;
   SynEdit.Gutter.ShowLineNumbers := FrmSettings.NbrsOnGutterCB.Checked;
+end;
+
+procedure TFrmMain.HLSettingsExecute(Sender: TObject);
+begin
+  FrmHighLighter.ShowModal;
 end;
 
 procedure TFrmMain.ActSaveExecute(Sender: TObject);
@@ -464,7 +479,7 @@ var
   Inif: TCustomIniFile;
   ParityStr: String; // string reprentaton of com values for com port
   Swflow, HwFlow: String;
-
+  i : integer;
 begin
 
   SaveExistingEditSession;
@@ -543,6 +558,14 @@ begin
     Inif.WriteBool(DefaultsSection, 'NbrsOnGutter',  FrmSettings.NbrsOnGutterCB.Checked);
     Inif.WriteBool(DefaultsSection, 'ForceUpperCase',FrmSettings.ForceUpperCaseCB.Checked);
 
+    //  Save highlighter settings
+  for i  := 1 to GcArraySz do
+    Begin
+      Inif.WriteString(Highlighter, 'HLColor'+ intTostr(i),ColorToString(GcHLColors[i]));
+      Inif.WriteString(Highlighter, 'HLString'+ intTostr(i), GcHLStrings[i]);
+     End;
+    Inif.WriteBool(Highlighter,'HLActive', FrmHighlighter.GcHighlightCB.checked);
+
   Finally
     Inif.UpdateFile;
     Inif.Free;
@@ -589,6 +612,7 @@ begin
 
 end;
 
+
 Procedure TFrmMain.FormShow(Sender: TObject);
 var
   Inif: TCustomIniFile;
@@ -634,6 +658,7 @@ var
   MyFontName: String;
   MyFontSize: Integer;
   MyFontColor: Integer;
+  i : integer;
 
 Begin
   { cnc / serial port options in this section }
@@ -740,6 +765,14 @@ Begin
   Else
     FrmSettings.FileExtLBX.ItemIndex := 5;
 
+//  Load the highlighter colors
+
+  for i  := 1 to GcArraySz do
+    Begin
+     GcHLColors[i] := StringToColor(Inif.ReadString(Highlighter, 'HLColor'+ intTostr(i), 'clGreen'));
+     GcHLStrings[i] := Inif.ReadString(Highlighter, 'HLString'+ intTostr(i), '');
+    End;
+    FrmHighlighter.GcHighlightCB.checked := Inif.ReadBool(Highlighter,'HLActive', FrmHighlighter.GcHighlightCB.checked);
 End;
 
  procedure TFrmMain.LoadLookoutBar(Sender: TObject);
@@ -2121,6 +2154,76 @@ Begin
     Key := upcase(Key);
 End;
 
+end;
+
+procedure TFrmMain.SynEditPaintTransient(Sender: TObject; Canvas: TCanvas;
+  TransientType: TTransientType);
+ // Highlight the G Codes defined in MyHighlightList
+var
+  key, keyw: string;
+  Nchar : Char;
+  i,j, k, c: integer;
+  s: string ;
+  DP : TDisplayCoord;
+  P: TPoint;
+begin
+  // highlighter enabled?
+  if FrmHighlighter.GcHighlightCB.Checked then
+  Begin
+  // only highlight what is visible
+  for i:= SynEdit.TopLine to SynEdit.TopLine + SynEdit.LinesInWindow do
+  begin
+    s:= SynEdit.Lines [i - 1];
+
+    for j  := 1 to GcArraySz do
+
+    begin
+      Key := Trim(GcHLStrings[j]);
+      // we have two ways of matching Gcodes
+      // 1) actual code ie) 'G01'
+      // 2) all codes of address type by using '#'   - wildcard
+      //   ie G# match G0 - G999
+      if Length(Key) > 0  then   // is highlighter text defined?
+
+
+      begin
+           // check of wild card match
+        if Pos('#', Key) > 0 then   // wild card?
+          begin  // wild card found
+            Keyw := StringReplace(Key,'#','',[]);
+            k:= Pos (KeyW, s);    // look for highlighter string in current line
+            if (k> 0) then       // if found, check for characters to match
+            begin
+               for C := K+1 to Length(s) do // look for number characters follow G Code Address Value "KeyW"
+                 Begin
+                   NChar := s[c];           // pull off next character
+//                   if Nchar in ['0' .. '9'] then   // is it a number?
+                   if (NChar >= '0') and (NChar <= '9') then
+                     KeyW := KeyW + NChar           // yes, add it to our highlight string
+                   else
+                     break
+                 End;
+            end;
+            Key := Keyw;
+          end;
+
+
+          k:= Pos (Key, s);    // look for highlighter string in current line
+          if (k> 0) then       // if found, highlight it
+          begin
+            DP := SynEdit.BufferToDisplayPos(BufferCoord(k, i));
+            P:= SynEdit.RowColumnToPixels ( DP );
+
+            Canvas.Brush.Color:= GcHLColors[j];
+//            Canvas.Font.Color:= clRed;
+            Canvas.TextOut(P.X,P.Y,Key);
+
+          end;
+
+      end;
+    end;
+  end;
+  End;
 end;
 
 procedure TFrmMain.SynEditorReplaceText(Sender: TObject;
