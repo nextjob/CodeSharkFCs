@@ -78,3 +78,8 @@ Revision History
 .13
     scrMain, HighlightSettings, Settings
         Add simple GCode Highlighting to Synedit window
+.14 FreeCad.pas 
+	Latest version of Python4Delphi no longer has the .Finalize method as public.  Remove call and set PythonEngine1.AutoFinalize to True.
+        Path By XXX buttons not enabled until FreeCAD is running
+	Correct Selected Edges Count (was not reset in python script after Path By XXX executed)
+        LoadStartupScript - Remove import Path and move import PathKurveUtils to after FreeCADGui.showMainWindow(), was causing Gui Startup (App.GuiUp) problems. 

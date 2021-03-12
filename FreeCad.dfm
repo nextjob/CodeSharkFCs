@@ -38,6 +38,7 @@ object FreeCadFrm: TFreeCadFrm
     Height = 89
     ScrollBars = ssBoth
     TabOrder = 0
+    WordWrap = False
   end
   object Panel1: TPanel
     Left = 8
@@ -145,6 +146,7 @@ object FreeCadFrm: TFreeCadFrm
         Width = 90
         Height = 32
         Caption = 'Path by PathKurveUtils'
+        Enabled = False
         TabOrder = 2
         WordWrap = True
         OnClick = btnGenPathClick
@@ -155,6 +157,7 @@ object FreeCadFrm: TFreeCadFrm
         Width = 145
         Height = 31
         Caption = 'Path by FromShapes'
+        Enabled = False
         TabOrder = 3
         OnClick = btnPathShapesClick
       end
@@ -167,6 +170,7 @@ object FreeCadFrm: TFreeCadFrm
     Height = 89
     ScrollBars = ssBoth
     TabOrder = 2
+    WordWrap = False
   end
   object cbRawOut: TCheckBox
     Left = 8
@@ -184,7 +188,6 @@ object FreeCadFrm: TFreeCadFrm
     FatalAbort = False
     FatalMsgDlg = False
     UseLastKnownVersion = False
-    AutoFinalize = False
     PyFlags = [pfIgnoreEnvironmentFlag]
     Left = 40
     Top = 448
